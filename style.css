@@ -1,0 +1,124 @@
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 60px;
+    }
+    header {
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #333;
+    }
+    #searchBox {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      background: #222;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    #results {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .user-result {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s;
+    }
+    .user-result:hover {
+      background: #292929;
+    }
+    .chat-btn {
+      background: #6c3aff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #121212;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid #333;
+      z-index: 10;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    nav a i {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+    }
+    .profile-container {
+  text-align: center;
+  margin-top: 50px;
+  color: #fff;
+  padding: 20px;
+}
+
+.avatar {
+  margin-bottom: 20px;
+  color: #8f00ff;
+}
+
+.profile-info h2 {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.logout-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #8f00ff;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #8f00ff80;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #6b00cc;
+}

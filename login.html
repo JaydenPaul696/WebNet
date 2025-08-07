@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WebNet Login/Sign-Up</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .container {
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 40px 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .input-group input::placeholder {
+      color: #ccc;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #ffffff30;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #ffffff50;
+    }
+
+    .toggle-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #a7e0ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="form-box">
+    <h2 id="form-title">Login</h2>
+
+    <div class="input-group" id="name-group" style="display: none;">
+      <label>Real Name</label>
+      <input type="text" id="realName" placeholder="Enter your real name" />
+    </div>
+
+    <div class="input-group" id="username-group" style="display: none;">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Choose a username" />
+    </div>
+
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="Enter email" />
+    </div>
+
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter password" />
+    </div>
+
+    <div class="input-group" id="signup-extra" style="display: none;">
+      <label>Confirm Password</label>
+      <input type="password" id="confirmPassword" placeholder="Confirm password" />
+    </div>
+
+    <button class="btn" id="submit-btn">Login</button>
+
+    <div class="toggle-link" id="toggle-form">
+      Don't have an account? Sign up
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    set
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+    authDomain: "webnet2.firebaseapp.com",
+    projectId: "webnet2",
+    storageBucket: "webnet2.firebasestorage.app",
+    messagingSenderId: "323870835138",
+    appId: "1:323870835138:web:bca571d5620b766651565b",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // DOM elements
+  const formTitle = document.getElementById("form-title");
+  const submitBtn = document.getElementById("submit-btn");
+  const toggleLink = document.getElementById("toggle-form");
+  const signupExtra = document.getElementById("signup-extra");
+  const nameGroup = document.getElementById("name-group");
+  const usernameGroup = document.getElementById("username-group");
+
+  let isLogin = true;
+
+  // Toggle between login and signup
+  toggleLink.addEventListener("click", () => {
+    isLogin = !isLogin;
+    formTitle.textContent = isLogin ? "Login" : "Sign Up";
+    submitBtn.textContent = isLogin ? "Login" : "Sign Up";
+    toggleLink.textContent = isLogin
+      ? "Don't have an account? Sign up"
+      : "Already have an account? Login";
+
+    signupExtra.style.display = isLogin ? "none" : "block";
+    nameGroup.style.display = isLogin ? "none" : "block";
+    usernameGroup.style.display = isLogin ? "none" : "block";
+  });
+
+  // Handle form submission
+  submitBtn.addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword")?.value;
+    const realName = document.getElementById("realName")?.value.trim();
+    const username = document.getElementById("username")?.value.trim();
+
+    if (!email || !password || (!isLogin && (!confirmPassword || !realName || !username))) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    if (!isLogin && password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      if (isLogin) {
+        // Login logic
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "index.html";
+      } else {
+        // Sign up logic
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        // Save additional user info to Realtime Database
+        await set(ref(db, "users/" + uid), {
+          realName: realName,
+          username: username,
+          email: email
+        });
+
+        window.location.href = "index.html";
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+</script>
+  
+</body>
+</html>

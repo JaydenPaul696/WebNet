@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+  <title>Welcome to WebNet</title>
+  <style>
+    body {
+      /* background: linear-gradient(to right, #0f0c29, #302b63, #24243e); */
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 18px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="welcomeMsg">Welcome to WebNet</h1>
+  <p>Setting up your lobby...</p>
+
+  <!-- Firebase Redirection Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+      authDomain: "webnet2.firebaseapp.com",
+      projectId: "webnet2",
+      storageBucket: "webnet2.firebasestorage.app",
+      messagingSenderId: "323870835138",
+      appId: "1:323870835138:web:bca571d5620b766651565b",
+      databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("welcomeMsg").textContent = `Welcome, ${user.displayName || user.email.split("@")[0]}!`;
+
+        // Wait 3 seconds then redirect to lobby.html
+        setTimeout(() => {
+          window.location.href = "lobby.html";
+        }, 3000);
+      } else {
+        window.location.href = "login.html"; // Redirect to login if not signed in
+      }
+    });
+  </script>
+</body>
+</html>
