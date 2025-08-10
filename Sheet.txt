@@ -17,3 +17,118 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 </script>
+
+<style>
+  #results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .user-card {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .user-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .user-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    background: #eee;
+  }
+
+  .user-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin: 5px 0;
+  }
+
+  .user-username {
+    color: gray;
+    font-size: 0.9em;
+  }
+</style>
+
+<div id="results"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+    authDomain: "webnet2.firebaseapp.com",
+    projectId: "webnet2",
+    storageBucket: "webnet2.firebasestorage.app",
+    messagingSenderId: "323870835138",
+    appId: "1:323870835138:web:bca571d5620b766651565b",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const searchInput = document.getElementById("searchInput");
+  const resultsDiv = document.getElementById("results");
+
+  searchInput.addEventListener("input", async () => {
+    const searchTerm = searchInput.value.toLowerCase();
+    resultsDiv.innerHTML = "";
+
+    if (searchTerm.trim() === "") return;
+
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, "users"));
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      let matches = [];
+
+      Object.keys(users).forEach(uid => {
+        const { realName, username, email, profilePicture } = users[uid];
+        if (
+          (realName && realName.toLowerCase().includes(searchTerm)) ||
+          (username && username.toLowerCase().includes(searchTerm))
+        ) {
+          matches.push({ uid, realName, username, email, profilePicture });
+        }
+      });
+
+      if (matches.length > 0) {
+        matches.forEach(user => {
+          const card = document.createElement("div");
+          card.classList.add("user-card");
+
+          card.innerHTML = `
+            <img class="user-avatar" src="${user.profilePicture || 'default-avatar.png'}" alt="${user.realName}">
+            <div class="user-name">${user.realName}</div>
+            <div class="user-username">@${user.username}</div>
+          `;
+
+          card.addEventListener("click", () => {
+            window.location.href = `profile.html?uid=${user.uid}`;
+          });
+
+          resultsDiv.appendChild(card);
+        });
+      } else {
+        resultsDiv.textContent = "No results found.";
+      }
+    } else {
+      resultsDiv.textContent = "No users in database.";
+    }
+  });
+</script>
+
+<!--<img class="user-avatar" src="${user.profilePicture || 'default-avatar.png'}" alt="${user.realName}">-->

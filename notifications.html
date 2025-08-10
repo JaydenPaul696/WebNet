@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    header {
+      background: #222;
+      padding: 15px;
+      font-size: 1.5em;
+      text-align: center;
+    }
+
+    .notif-container {
+      padding: 15px;
+    }
+
+    .notif-item {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #ff2e63;
+    }
+
+    .notif-item.read {
+      opacity: 0.6;
+      border-left-color: #555;
+    }
+
+    .notif-item i {
+      font-size: 1.5em;
+      color: #ff2e63;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #222;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    nav a {
+      color: white;
+      font-size: 1.4em;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Notifications</header>
+
+  <div class="notif-container" id="notifContainer">
+    <p>The plus button doesn't work for now<br>Our team is trying their best<br><br><br>Loading notifications...</p>
+  </div>
+
+  <nav>
+    <a href="lobby.html"><i class="fas fa-home"></i></a>
+    <a href="search.html"><i class="fas fa-search"></i></a>
+    <a href="notifications.html"><i class="fas fa-bell"></i></a>
+    <a href="profile.html"><i class="fas fa-user"></i></a>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+      authDomain: "webnet2.firebaseapp.com",
+      projectId: "webnet2",
+      storageBucket: "webnet2.firebasestorage.app",
+      messagingSenderId: "323870835138",
+      appId: "1:323870835138:web:bca571d5620b766651565b",
+      databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const notifContainer = document.getElementById("notifContainer");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const notifRef = ref(db, `notifications/${user.uid}`);
+        onValue(notifRef, (snapshot) => {
+          notifContainer.innerHTML = "";
+          if (snapshot.exists()) {
+            const notifs = snapshot.val();
+            Object.entries(notifs).forEach(([id, notif]) => {
+              const notifEl = document.createElement("div");
+              notifEl.classList.add("notif-item");
+              if (notif.read) notifEl.classList.add("read");
+              notifEl.innerHTML = `
+                <i class="fas fa-bell"></i>
+                <div>
+                  <p>${notif.message}</p>
+                  <small>${notif.time || ""}</small>
+                </div>
+              `;
+              notifContainer.appendChild(notifEl);
+
+              // Mark as read if not already
+              if (!notif.read) {
+                update(ref(db, `notifications/${user.uid}/${id}`), { read: true });
+              }
+            });
+          } else {
+            notifContainer.innerHTML = "<p>No notifications yet.</p>";
+          }
+        });
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
+</html>

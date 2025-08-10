@@ -1,124 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WebNet - Search</title>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+  <title>WebNet - Search</title>  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+  <style>  
+    * { margin: 0; padding: 0; box-sizing: border-box; }  
+    body {  
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);  
+      color: white;  
+      min-height: 100vh;  
+      display: flex;  
+      flex-direction: column;  
+      padding-bottom: 60px;  
+    }  
+    header {  
+      padding: 20px;  
+      text-align: center;  
+      font-size: 1.5rem;  
+      background: rgba(255, 255, 255, 0.05);  
+      backdrop-filter: blur(8px);  
+      border-bottom: 1px solid #333;  
+    }  
+    #searchBox {  
+      margin: 20px auto;  
+      width: 90%;  
+      max-width: 400px;  
+      display: flex;  
+      flex-direction: column;  
+      align-items: center;  
+    }  
+    input {  
+      width: 100%;  
+      padding: 10px 15px;  
+      border-radius: 8px;  
+      border: none;  
+      outline: none;  
+      font-size: 1rem;  
+      background: #222;  
+      color: #fff;  
+      margin-bottom: 10px;  
+    }  
+
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
     }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding-bottom: 60px;
-    }
-    header {
-      padding: 20px;
+
+    .user-card {
+      background: #232323;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
       text-align: center;
-      font-size: 1.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #333;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
     }
-    #searchBox {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+
+    .user-card:hover {
+      transform: translateY(-5px);
+      background: #2e2e2e;
     }
-    input {
-      width: 100%;
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      font-size: 1rem;
-      background: #222;
-      color: #fff;
+
+    .user-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      background: #444;
+    }
+
+    .avatar-placeholder {
+      font-size: 50px;
+      color: gray;
       margin-bottom: 10px;
     }
-    #results {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .user-result {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      padding: 10px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: 0.2s;
-    }
-    .user-result:hover {
-      background: #292929;
-    }
-    .chat-btn {
-      background: #6c3aff;
+
+    .user-name {
       color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin: 5px 0;
     }
-    nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #121212;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 1px solid #333;
-      z-index: 10;
+
+    .user-username {
+      color: #bbb;
+      font-size: 0.9em;
     }
-    nav a {
-      color: white;
-      text-decoration: none;
-      text-align: center;
-      font-size: 1.2rem;
+
+    nav {  
+      position: fixed;  
+      bottom: 0;  
+      width: 100%;  
+      background: #121212;  
+      display: flex;  
+      justify-content: space-around;  
+      align-items: center;  
+      padding: 10px 0;  
+      border-top: 1px solid #333;  
+      z-index: 10;  
+    }  
+    nav a {  
+      color: white;  
+      text-decoration: none;  
+      text-align: center;  
+      font-size: 1.2rem;  
+    }  
+    nav a i {  
+      display: block;  
+      font-size: 1.5rem;  
+      margin-bottom: 5px;  
     }
-    nav a i {
-      display: block;
-      font-size: 1.5rem;
-      margin-bottom: 5px;
-    }
-  </style>
-</head>
-<body>
-
-  <header>Search Users</header>
-
-  <section id="searchBox">
-    <input type="text" id="searchInput" placeholder="Search users..." />
-    <div id="results"></div>
-  </section>
-
-  <nav>
-    <a href="lobby.html"><i class="fas fa-home"></i></a>
-    <a href="search.html"><i class="fas fa-search"></i></a>
-    <a href="profile.html"><i class="fas fa-user"></i></a>
-  </nav>
-
-  <!-- Firebase + Script -->
+  </style>  
+</head>  
+<body>  
+  
+  <header>Search Users</header>  
+  
+  <section id="searchBox">  
+    <input type="text" id="searchInput" placeholder="Search users..." />  
+    <div id="results"></div>  
+  </section>  
+  
+  <nav>  
+    <a href="lobby.html"><i class="fas fa-home"></i></a>  
+    <a href="search.html"><i class="fas fa-search"></i></a>  
+    <a href="profile.html"><i class="fas fa-user"></i></a>  
+  </nav>  
+  
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -126,124 +144,71 @@
     projectId: "webnet2",
     storageBucket: "webnet2.firebasestorage.app",
     messagingSenderId: "323870835138",
-    appId: "1:323870835138:web:bca571d5620b766651565b"
+    appId: "1:323870835138:web:bca571d5620b766651565b",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
   };
 
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = getDatabase(app);
 
   const searchInput = document.getElementById("searchInput");
   const resultsDiv = document.getElementById("results");
 
-  let allUsers = [];
-
-  // Real-time fetch all users once
-  onSnapshot(collection(db, "users"), (snapshot) => {
-    allUsers = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    updateResults(); // Initially show results if searchInput has value
-  });
-
-  searchInput.addEventListener("input", updateResults);
-
-  function updateResults() {
-    const term = searchInput.value.trim().toLowerCase();
+  searchInput.addEventListener("input", async () => {
+    const searchTerm = searchInput.value.toLowerCase();
     resultsDiv.innerHTML = "";
 
-    if (!term) return;
+    if (searchTerm.trim() === "") return;
 
-    const filtered = allUsers.filter(user => {
-      return (
-        user.username?.toLowerCase().includes(term) ||
-        user.realName?.toLowerCase().includes(term)
-      );
-    });
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, "users"));
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      let matches = [];
 
-    filtered.forEach(user => {
-      const div = document.createElement("div");
-      div.className = "user-result";
-      div.innerHTML = `
-        <div>
-          <strong>${user.username}</strong><br>
-          <small>${user.realName}</small>
-        </div>
-      `;
-      resultsDiv.appendChild(div);
-    });
-  }
-</script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+      Object.keys(users).forEach(uid => {
+        const { realName, username, profilePicture } = users[uid];
+        if (
+          (realName && realName.toLowerCase().includes(searchTerm)) ||
+          (username && username.toLowerCase().includes(searchTerm))
+        ) {
+          matches.push({ uid, realName, username, profilePicture });
+        }
+      });
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
-    authDomain: "webnet2.firebaseapp.com",
-    projectId: "webnet2",
-    storageBucket: "webnet2.firebasestorage.app",
-    messagingSenderId: "323870835138",
-    appId: "1:323870835138:web:bca571d5620b766651565b"
-  };
+      if (matches.length > 0) {
+        matches.forEach(user => {
+          const card = document.createElement("div");
+          card.classList.add("user-card");
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+          if (user.profilePicture) {
+            card.innerHTML = `
+              <img src="${user.profilePicture}" class="user-avatar" alt="${user.realName}">
+              <div class="user-name">${user.realName || "Unnamed"}</div>
+              <div class="user-username">@${user.username || "unknown"}</div>
+            `;
+          } else {
+            card.innerHTML = `
+              <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
+              <div class="user-name">${user.realName || "Unnamed"}</div>
+              <div class="user-username">@${user.username || "unknown"}</div>
+            `;
+          }
 
-  const searchInput = document.getElementById("searchInput");
-  const resultsDiv = document.getElementById("results");
+          card.addEventListener("click", () => {
+            window.location.href = `profile.html?uid=${user.uid}`;
+          });
 
-  let allUsers = [];
-
-  console.log("Setting up real-time listener...");
-
-  onSnapshot(collection(db, "users"), (snapshot) => {
-    allUsers = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    console.log("Fetched users:", allUsers);
-
-    updateResults();
-  }, (error) => {
-    console.error("Error fetching users:", error);
-  });
-
-  searchInput.addEventListener("input", updateResults);
-
-  function updateResults() {
-    const term = searchInput.value.trim().toLowerCase();
-    resultsDiv.innerHTML = "";
-
-    if (!term) return;
-
-    const filtered = allUsers.filter(user => {
-      return (
-        user.username?.toLowerCase().includes(term) ||
-        user.realName?.toLowerCase().includes(term)
-      );
-    });
-
-    console.log("Search term:", term);
-    console.log("Filtered results:", filtered);
-
-    if (filtered.length === 0) {
-      resultsDiv.innerHTML = "<p>No matching users found.</p>";
+          resultsDiv.appendChild(card);
+        });
+      } else {
+        resultsDiv.textContent = "No results found.";
+      }
+    } else {
+      resultsDiv.textContent = "No users in database.";
     }
-
-    filtered.forEach(user => {
-      const div = document.createElement("div");
-      div.className = "user-result";
-      div.innerHTML = `
-        <div>
-          <strong>${user.username}</strong><br>
-          <small>${user.realName}</small>
-        </div>
-      `;
-      resultsDiv.appendChild(div);
-    });
-  }
+  });
 </script>
-</body>
+  
+</body>  
 </html>
