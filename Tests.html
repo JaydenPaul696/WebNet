@@ -1,0 +1,41 @@
+<script>export default function PostTemplate() { return ( <div className="max-w-md mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 space-y-4"> {/* Header */}</script>
+<div className="flex items-center justify-between"> <div className="flex items-center space-x-3"> <img
+src="https://via.placeholder.com/40"
+alt="Profile"
+className="w-10 h-10 rounded-full"
+/> <div> <p className="font-semibold text-gray-900 dark:text-white">Username</p> <p className="text-xs text-gray-500">2h ago</p> </div> </div> <button className="text-gray-500 hover:text-gray-700">⋮</button> </div>
+
+{/* Content */}
+  <div className="space-y-3">
+    <p className="text-gray-800 dark:text-gray-200">
+      This is an example post caption. It can contain text, links, and even emojis 😎.
+    </p>
+    <img
+      src="https://via.placeholder.com/350x200"
+      alt="Post media"
+      className="rounded-xl object-cover w-full"
+    />
+  </div>
+
+  {/* Interaction buttons */}
+  <div className="flex items-center space-x-6 text-gray-500 dark:text-gray-400">
+    <button className="flex items-center space-x-1 hover:text-red-500">
+      <span>❤️</span>
+      <span>120</span>
+    </button>
+    <button className="flex items-center space-x-1 hover:text-blue-500">
+      <span>💬</span>
+      <span>45</span>
+    </button>
+    <button className="hover:text-green-500">🔗</button>
+    <button className="hover:text-yellow-500">🔖</button>
+  </div>
+
+  {/* Footer */}
+  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+    <p>#hashtag #example</p>
+    <p>📍 Lagos, Nigeria</p>
+  </div>
+</div>
+
+); }

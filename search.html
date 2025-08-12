@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
   <title>WebNet - Search</title>  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  
-  <link rel="stylesheet" href="style.css">
   <style>  
     * { margin: 0; padding: 0; box-sizing: border-box; }  
     body {  
@@ -50,6 +49,8 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 15px;
       margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
     }
 
     .user-card {
@@ -124,7 +125,7 @@
   <header>Search Users</header>  
   
   <section id="searchBox">  
-    <input type="text" id="searchInput" placeholder="Search users..." />  
+    <input type="text" id="searchInput" placeholder="Search users..." autocomplete="off" />  
     <div id="results"></div>  
   </section>  
   
@@ -154,60 +155,100 @@
   const searchInput = document.getElementById("searchInput");
   const resultsDiv = document.getElementById("results");
 
-  searchInput.addEventListener("input", async () => {
-    const searchTerm = searchInput.value.toLowerCase();
+  let debounceTimeout;
+  const searchCache = new Map();
+
+  function showLoading() {
+    resultsDiv.innerHTML = `<p style="color:#aaa; text-align:center;">Loading...</p>`;
+  }
+
+  function clearResults() {
     resultsDiv.innerHTML = "";
+  }
 
-    if (searchTerm.trim() === "") return;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(debounceTimeout);
 
-    const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, "users"));
-    if (snapshot.exists()) {
-      const users = snapshot.val();
-      let matches = [];
+    debounceTimeout = setTimeout(async () => {
+      const searchTerm = searchInput.value.trim().toLowerCase();
 
-      Object.keys(users).forEach(uid => {
-        const { realName, username, profilePicture } = users[uid];
-        if (
-          (realName && realName.toLowerCase().includes(searchTerm)) ||
-          (username && username.toLowerCase().includes(searchTerm))
-        ) {
-          matches.push({ uid, realName, username, profilePicture });
+      if (searchTerm === "") {
+        clearResults();
+        return;
+      }
+
+      if (searchCache.has(searchTerm)) {
+        renderResults(searchCache.get(searchTerm));
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const dbRef = ref(db);
+        const snapshot = await get(child(dbRef, "users"));
+
+        if (!snapshot.exists()) {
+          resultsDiv.textContent = "No users in database.";
+          return;
         }
+
+        const users = snapshot.val();
+        const matches = [];
+
+        Object.entries(users).forEach(([uid, user]) => {
+          const { realName = "", username = "", profilePicture = "" } = user;
+          if (
+            realName.toLowerCase().includes(searchTerm) ||
+            username.toLowerCase().includes(searchTerm)
+          ) {
+            matches.push({ uid, realName, username, profilePicture });
+          }
+        });
+
+        searchCache.set(searchTerm, matches);
+
+        renderResults(matches);
+      } catch (error) {
+        resultsDiv.textContent = "Error loading users.";
+        console.error("Search error:", error);
+      }
+    }, 400); // debounce 400ms
+  });
+
+  function renderResults(matches) {
+    clearResults();
+
+    if (matches.length === 0) {
+      resultsDiv.textContent = "No results found.";
+      return;
+    }
+
+    matches.forEach(user => {
+      const card = document.createElement("div");
+      card.classList.add("user-card");
+
+      if (user.profilePicture) {
+        card.innerHTML = `
+          <img src="${user.profilePicture}" class="user-avatar" alt="${user.realName}">
+          <div class="user-name">${user.realName || "Unnamed"}</div>
+          <div class="user-username">@${user.username || "unknown"}</div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
+          <div class="user-name">${user.realName || "Unnamed"}</div>
+          <div class="user-username">@${user.username || "unknown"}</div>
+        `;
+      }
+
+      card.addEventListener("click", () => {
+        window.location.href = `profile.html?uid=${user.uid}`;
       });
 
-      if (matches.length > 0) {
-        matches.forEach(user => {
-          const card = document.createElement("div");
-          card.classList.add("user-card");
-
-          if (user.profilePicture) {
-            card.innerHTML = `
-              <img src="${user.profilePicture}" class="user-avatar" alt="${user.realName}">
-              <div class="user-name">${user.realName || "Unnamed"}</div>
-              <div class="user-username">@${user.username || "unknown"}</div>
-            `;
-          } else {
-            card.innerHTML = `
-              <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
-              <div class="user-name">${user.realName || "Unnamed"}</div>
-              <div class="user-username">@${user.username || "unknown"}</div>
-            `;
-          }
-
-          card.addEventListener("click", () => {
-            window.location.href = `profile.html?uid=${user.uid}`;
-          });
-
-          resultsDiv.appendChild(card);
-        });
-      } else {
-        resultsDiv.textContent = "No results found.";
-      }
-    } else {
-      resultsDiv.textContent = "No users in database.";
-    }
-  });
+      resultsDiv.appendChild(card);
+    });
+  }
 </script>
   
 </body>  
