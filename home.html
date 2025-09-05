@@ -255,12 +255,13 @@ window.addEventListener('appinstalled', () => {
   alert('WebNet installed successfully! 🎉');
 });
 // TEMPORARY: Force show button for testing (remove later)
-setTimeout(() => {
+/* setTimeout(() => {
   if (installButton.classList.contains('hidden')) {
     console.log('Install button hidden, forcing show for testing');
     installButton.classList.remove('hidden');
   }
 }, 3000);
+  */
 // Hide button if already installed
 if (window.matchMedia('(display-mode: standalone)').matches) {
   installButton.classList.add('hidden');
