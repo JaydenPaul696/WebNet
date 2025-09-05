@@ -22,6 +22,7 @@
 
     .notif-container {
       padding: 15px;
+      margin-bottom: 60px; /* prevent nav overlap */
     }
 
     .notif-item {
@@ -45,6 +46,11 @@
       color: #ff2e63;
     }
 
+    .notif-pinned {
+      background: #2b2b2b;
+      border-left: 4px solid #00d4ff;
+    }
+
     nav {
       display: flex;
       justify-content: space-around;
@@ -66,69 +72,113 @@
   <header>Notifications</header>
 
   <div class="notif-container" id="notifContainer">
-    <p>The plus button doesn't work for now<br>Our team is trying their best<br><br><br>Loading notifications...</p>
+    <p><br>Loading notifications...</p>
   </div>
 
   <nav>
-    <a href="lobby.html"><i class="fas fa-home"></i></a>
+    <a href="home.html"><i class="fas fa-home"></i></a>
     <a href="search.html"><i class="fas fa-search"></i></a>
     <a href="notifications.html"><i class="fas fa-bell"></i></a>
     <a href="profile.html"><i class="fas fa-user"></i></a>
   </nav>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
-      authDomain: "webnet2.firebaseapp.com",
-      projectId: "webnet2",
-      storageBucket: "webnet2.firebasestorage.app",
-      messagingSenderId: "323870835138",
-      appId: "1:323870835138:web:bca571d5620b766651565b",
-      databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
-    };
+  const firebaseConfig = {
+    // Your config here
+    apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+    authDomain: "webnet2.firebaseapp.com",
+    projectId: "webnet2",
+    storageBucket: "webnet2.firebasestorage.app",
+    messagingSenderId: "323870835138",
+    appId: "1:323870835138:web:bca571d5620b766651565b",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const notifContainer = document.getElementById("notifContainer");
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const notifContainer = document.getElementById("notifContainer");
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const notifRef = ref(db, `notifications/${user.uid}`);
-        onValue(notifRef, (snapshot) => {
-          notifContainer.innerHTML = "";
-          if (snapshot.exists()) {
-            const notifs = snapshot.val();
-            Object.entries(notifs).forEach(([id, notif]) => {
-              const notifEl = document.createElement("div");
-              notifEl.classList.add("notif-item");
-              if (notif.read) notifEl.classList.add("read");
-              notifEl.innerHTML = `
-                <i class="fas fa-bell"></i>
-                <div>
-                  <p>${notif.message}</p>
-                  <small>${notif.time || ""}</small>
-                </div>
-              `;
-              notifContainer.appendChild(notifEl);
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const notifRef = ref(db, `users/${user.uid}/notifications`);
 
-              // Mark as read if not already
+      // Clear container and add pinned notification
+      notifContainer.innerHTML = '';
+      notifContainer.appendChild(
+        createNotif("fas fa-newspaper", "Check out the latest patch notes & updates!", "Pinned", false, true, "patch.html")
+      );
+
+      // Load user notifications
+      onValue(notifRef, (snapshot) => {
+        // Remove only dynamic notifications (keep pinned)
+        const dynamicNotifs = notifContainer.querySelectorAll('.notif-item:not(.notif-pinned), .no-notifs');
+        dynamicNotifs.forEach(node => node.remove());
+
+        if (snapshot.exists()) {
+          const notifs = snapshot.val();
+          const notifArray = Object.entries(notifs).map(([id, notif]) => ({ id, ...notif }));
+          
+          // Sort by timestamp (newest first)
+          notifArray.sort((a, b) => b.timestamp - a.timestamp);
+
+          notifArray.forEach(notif => {
+            let icon = "fas fa-bell";
+            if (notif.type === "follow") icon = "fas fa-user-plus";
+            if (notif.type === "new_post") icon = "fas fa-image";
+            if (notif.type === "update") icon = "fas fa-download";
+
+            const notifEl = createNotif(icon, notif.message, notif.time, notif.read, false, null);
+            
+            // Add click event to mark as read
+            notifEl.addEventListener('click', () => {
               if (!notif.read) {
-                update(ref(db, `notifications/${user.uid}/${id}`), { read: true });
+                const notifItemRef = ref(db, `users/${user.uid}/notifications/${notif.id}`);
+                update(notifItemRef, { read: true });
               }
             });
-          } else {
-            notifContainer.innerHTML = "<p>No notifications yet.</p>";
-          }
-        });
-      } else {
-        window.location.href = "index.html";
-      }
-    });
-  </script>
+
+            notifContainer.appendChild(notifEl);
+          });
+        } else {
+          const noMsg = document.createElement("p");
+          noMsg.textContent = "No notifications yet.";
+          noMsg.classList.add("no-notifs");
+          notifContainer.appendChild(noMsg);
+        }
+      });
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+
+  function createNotif(icon, message, time, read = false, pinned = false, link = null) {
+    const notifEl = document.createElement("div");
+    notifEl.classList.add("notif-item");
+    if (read) notifEl.classList.add("read");
+    if (pinned) notifEl.classList.add("notif-pinned");
+
+    notifEl.innerHTML = `
+      <i class="${icon}"></i>
+      <div>
+        <p>${message}</p>
+        <small>${time || ""}</small>
+      </div>
+    `;
+
+    if (link) {
+      notifEl.style.cursor = "pointer";
+      notifEl.addEventListener("click", () => {
+        window.location.href = link;
+      });
+    }
+
+    return notifEl;
+  }
+</script>
 </body>
 </html>

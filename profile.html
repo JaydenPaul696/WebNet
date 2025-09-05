@@ -6,212 +6,77 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <title>WebNet - Profile</title>
   <style>
-    body {
-      background: #121212;
-      color: white;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      padding: 15px;
-      background: #111;
-      color: white;
-      font-size: 1.3em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    nav {
-      position: fixed;  
-      bottom: 0;  
-      width: 100%;  
-      background: #121212;  
-      display: flex;  
-      justify-content: space-around;  
-      align-items: center;  
-      padding: 10px 0;  
-      border-top: 1px solid #333;  
-      z-index: 10;  
-    }
-    nav a {
-      color: white;
-      font-size: 1.4em;
-      position: relative;
-    }
-    nav a:hover {
-      color: #0a84ff;
-    }
-    .notification-badge {
-      position: absolute;
-      top: -5px;
-      right: -10px;
-      background: red;
-      color: white;
-      border-radius: 50%;
-      padding: 3px 6px;
-      font-size: 0.7em;
-    }
-    .profile-container {
-      padding: 20px;
-      text-align: center;
-      color: white;
-    }
-    .avatar-placeholder {
-      font-size: 80px;
-      margin-bottom: 10px;
-    }
+    body { background: #121212; color: white; font-family: Arial, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+    header { padding: 15px; background: #111; color: white; font-size: 1.3em; display: flex; align-items: center; gap: 10px; }
+    nav { position: fixed; bottom: 0; width: 100%; background: #121212; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; border-top: 1px solid #333; z-index: 10; }
+    nav a { color: white; font-size: 1.4em; text-decoration: none; }
+    nav a:hover { color: #0a84ff; }
+
+    .profile-container { padding: 20px; text-align: center; color: white; }
+    .avatar-placeholder { font-size: 80px; margin-bottom: 10px; }
     .user-info h2 { margin: 0; font-size: 1.6em; }
     .user-info p { font-size: 1em; color: #ccc; }
-    .logout-btn {
-      margin: 20px auto 10px;
-      display: block;
-      padding: 10px 20px;
-      background: #3247e7;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
-      cursor: pointer;
-      max-width: 200px;
-      transition: background 0.3s ease;
-    }
+    .logout-btn { margin: 20px auto 10px; display: block; padding: 10px 20px; background: #3247e7; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; max-width: 200px; transition: background 0.3s ease; }
     .logout-btn:hover { background: #7684f1; }
+    .follow-btn { padding: 8px 20px; font-size: 1em; border: none; border-radius: 6px; cursor: pointer; background-color: #3247e7; color: white; transition: 0.3s; margin-top: 15px; max-width: 200px; }
+    .follow-btn.following { background-color: #d3d3d3; color: #333; }
 
-    /* Follow button: blue default, light grey when following */
-    .follow-btn {
-      padding: 8px 20px;
-      font-size: 1em;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background-color: #3247e7; /* Blue */
-      color: white;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      margin-top: 15px;
-      max-width: 200px;
-    }
-    .follow-btn.following {
-      background-color: #d3d3d3; /* Light grey */
-      color: #333; /* Dark text */
-    }
+    .posts-grid { margin: 0 20px 80px; display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; }
+    .post-box { background: #1e1e1e; color: #eee; padding: 10px; border-radius: 6px; word-wrap: break-word; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.95em; }
 
-    .posts-grid {
-      margin: 0 20px 80px; /* bottom space for navbar */
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(100px,1fr));
-      gap: 10px;
-    }
-    .post-img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      background: #222;
-    }
-    .post-img:hover {
-      transform: scale(1.03);
-    }
-    /* lightbox */
-    .lightbox {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    .lightbox-img { max-width: 90%; max-height: 80%; border-radius: 8px; }
-    .lightbox-caption { color: white; margin-top: 10px; text-align: center; font-size: 1rem; }
-    .close-btn { position: absolute; top: 20px; right: 30px; font-size: 2rem; color: white; cursor: pointer; }
-
-    /* Floating plus button */
-    .plus-btn {
-      position: fixed;
-      bottom: 70px; /* Above nav bar */
-      right: 20px;
-      background: #3f2eff;
-      color: white;
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      font-size: 1.6em;
-      display: none; /* shown only on own profile */
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      cursor: pointer;
-      z-index: 15;
-      text-decoration: none;
-    }
+    .plus-btn { position: fixed; bottom: 70px; right: 20px; background: #3f2eff; color: white; width: 55px; height: 55px; border-radius: 50%; font-size: 1.6em; display: none; justify-content: center; align-items: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); cursor: pointer; z-index: 15; text-decoration: none; }
     .plus-btn:hover { background: #e01a4f; }
   </style>
 </head>
 <body>
 
-  <header id="profileHeader">
-    <span id="backBtn" style="display:none; cursor:pointer;">
-      <i class="fas fa-arrow-left"></i>
-    </span>
-    <span id="headerTitle">My Profile</span>
-  </header>
+<header id="profileHeader">
+  <span id="backBtn" style="display:none; cursor:pointer;">
+    <i class="fas fa-arrow-left"></i>
+  </span>
+  <span id="headerTitle">My Profile</span>
+</header>
 
-  <div class="profile-container" id="profileContainer">
-    <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
-    <div class="user-info">
-      <h2 id="realName"><!-- Real name --></h2>
-      <h3><span id="username"></span></h3>
-      <p id="userEmail">Loading...</p>
-      <div style="margin-top:10px; display:flex; justify-content:center; gap:20px;">
-        <span id="followersCount">•</span>Followers
-        <span id="followingCount">•</span>Following
-      </div>
+<div class="profile-container" id="profileContainer">
+  <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
+  <div class="user-info">
+    <h2 id="realName">Loading...</h2>
+    <h3><span id="username"></span></h3>
+    <p id="userEmail">Loading...</p>
+    <div style="margin-top:10px; display:flex; justify-content:center; gap:20px;">
+      <span id="followersCount">•</span>Followers
+      <span id="followingCount">•</span>Following
     </div>
-
-    <button id="followBtn" class="follow-btn" style="display:none;">Follow</button>
   </div>
+  <button id="followBtn" class="follow-btn" style="display:none;">Follow</button>
+</div>
 
-  <button onclick="logout()" class="logout-btn" id="logoutBtn">Logout</button>
+<button onclick="logout()" class="logout-btn" id="logoutBtn">Logout</button>
 
-  <div id="postsContainer" class="posts-grid"></div>
+<div id="postsContainer" class="posts-grid"></div>
 
-  <nav>
-    <a href="lobby.html"><i class="fas fa-home"></i></a>
-    <a href="search.html"><i class="fas fa-search"></i></a>
-    <a href="notifications.html" class="notification-link">
-      <i class="fas fa-bell"></i>
-      <span class="notification-badge" id="notifBadge" style="display:none;">0</span>
-    </a>
-    <a href="profile.html"><i class="fas fa-user"></i></a>
-  </nav>
+<nav>
+  <a href="home.html"><i class="fas fa-home"></i></a>
+  <a href="search.html"><i class="fas fa-search"></i></a>
+  <a href="notifications.html">
+    <i class="fas fa-bell"></i>
+    <span class="notification-badge" id="notifBadge" style="display:none;">0</span>
+  </a>
+  <a href="profile.html"><i class="fas fa-user"></i></a>
+</nav>
 
-  <a id="plusFab" href="new.html" class="plus-btn"><i class="fas fa-plus"></i></a>
-
-  <div class="lightbox" id="lightbox">
-    <span class="close-btn">&times;</span>
-    <img class="lightbox-img" src="" alt="">
-    <p class="lightbox-caption"></p>
-  </div>
+<a id="plusFab" href="post.html" class="plus-btn"><i class="fas fa-plus"></i></a>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-  import { 
-    getDatabase, ref, get, set, remove, onValue 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, get, onValue, set, remove, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
     authDomain: "webnet2.firebaseapp.com",
     projectId: "webnet2",
-    storageBucket: "webnet2.firebasestorage.app",
+    storageBucket: "webnet2.appspot.com",
     messagingSenderId: "323870835138",
     appId: "1:323870835138:web:bca571d5620b766651565b",
     databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
@@ -233,173 +98,133 @@
   const headerTitle = document.getElementById("headerTitle");
   const postsContainer = document.getElementById("postsContainer");
 
-  const lightbox = document.getElementById("lightbox");
-  const closeBtn = lightbox.querySelector(".close-btn");
-  const lightboxImg = lightbox.querySelector(".lightbox-img");
-  const lightboxCaption = lightbox.querySelector(".lightbox-caption");
-
-  closeBtn.onclick = () => lightbox.style.display = "none";
-
   const params = new URLSearchParams(window.location.search);
   const profileUidParam = params.get("uid");
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "index.html";
-      return;
-    }
+    if(!user) { window.location.href = "index.html"; return; }
 
     const myUid = user.uid;
     const uidToLoad = profileUidParam || myUid;
 
-    // Back arrow: show only when viewing other's profile
-    if (profileUidParam && profileUidParam !== myUid) {
+    // Back button logic
+    if(profileUidParam && profileUidParam !== myUid) {
       backBtn.style.display = "inline";
-      backBtn.onclick = () => {
-        if (document.referrer && document.referrer !== window.location.href) {
-          window.history.back();
-        } else {
-          window.location.href = "search.html";
-        }
-      };
+      backBtn.onclick = () => window.history.back();
       headerTitle.textContent = "User Profile";
-    } else {
-      backBtn.style.display = "none";
-      headerTitle.textContent = "My Profile";
-    }
-
-    // Show plus FAB only on your profile
-    if (uidToLoad === myUid) {
-      plusFab.style.display = "flex";
-      logoutBtn.style.display = "inline-block";
-      followBtn.style.display = "none";
-    } else {
       plusFab.style.display = "none";
       logoutBtn.style.display = "none";
       followBtn.style.display = "inline-block";
-    }
 
-    // fetch basic profile info
-    try {
-      const userRef = ref(db, `users/${uidToLoad}`);
-      const userSnap = await get(userRef);
-      if (userSnap.exists()) {
-        const data = userSnap.val();
-        realNameElem.textContent = data.realName || "Real name not set";
-        usernameElem.textContent = data.username ? `@${data.username}` : "Username not set";
-        emailElem.textContent = data.email || "Email not set";
-      } else {
-        realNameElem.textContent = "Unknown";
-        usernameElem.textContent = "Unknown";
-        emailElem.textContent = "";
-      }
-    } catch (err) {
-      console.error("Error loading user profile:", err);
-    }
-
-    // live follower & following counts
-    const followersPath = ref(db, `users/${uidToLoad}/followers`);
-    const followingPath = ref(db, `users/${uidToLoad}/following`);
-
-    onValue(followersPath, snap => {
-      const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-      followersCountElem.textContent = count;
-    });
-
-    onValue(followingPath, snap => {
-      const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-      followingCountElem.textContent = count;
-    });
-
-    // follow button logic
-    if (uidToLoad !== myUid) {
-      const followerEntryRef = ref(db, `users/${uidToLoad}/followers/${myUid}`);
-      try {
-        const snap = await get(followerEntryRef);
-        if (snap.exists()) {
+      // Follow/unfollow state
+      onValue(ref(db, `users/${uidToLoad}/followers/${myUid}`), (snap) => {
+        if(snap.exists()) {
           followBtn.textContent = "Following";
           followBtn.classList.add("following");
         } else {
           followBtn.textContent = "Follow";
           followBtn.classList.remove("following");
         }
-      } catch (err) {
-        console.error("Error checking follow status:", err);
-      }
+      });
 
+      // FOLLOW/UNFOLLOW BUTTON ACTION WITH NOTIFICATIONS
       followBtn.onclick = async () => {
-        try {
-          const followerRef = ref(db, `users/${uidToLoad}/followers/${myUid}`);
-          const followingRef = ref(db, `users/${myUid}/following/${uidToLoad}`);
-          const currentSnap = await get(followerRef);
-
-          if (currentSnap.exists()) {
-            await remove(followerRef);
-            await remove(followingRef);
-            followBtn.textContent = "Follow";
-            followBtn.classList.remove("following");
-          } else {
-            await set(followerRef, true);
-            await set(followingRef, true);
-            followBtn.textContent = "Following";
-            followBtn.classList.add("following");
+        const isFollowing = followBtn.classList.contains("following");
+        
+        if (isFollowing) {
+          // Unfollow
+          await remove(ref(db, `users/${uidToLoad}/followers/${myUid}`));
+          await remove(ref(db, `users/${myUid}/following/${uidToLoad}`));
+        } else {
+          // Follow
+          await set(ref(db, `users/${uidToLoad}/followers/${myUid}`), true);
+          await set(ref(db, `users/${myUid}/following/${uidToLoad}`), true);
+          
+          // ✅ Send notification to the user being followed
+          try {
+            // Get current user's display name
+            const currentUserSnap = await get(ref(db, `users/${myUid}`));
+            const currentUserData = currentUserSnap.val();
+            const currentUserName = currentUserData.realName || currentUserData.username || "Someone";
+            
+            // Get target user's data for notification
+            const targetUserSnap = await get(ref(db, `users/${uidToLoad}`));
+            const targetUserData = targetUserSnap.val();
+            
+            // Create notification
+            const notifRef = ref(db, `users/${uidToLoad}/notifications`);
+            const newNotifRef = push(notifRef);
+            await set(newNotifRef, {
+              type: "follow",
+              message: `${currentUserName} started following you.`,
+              read: false,
+              timestamp: Date.now(),
+              time: new Date().toLocaleString(),
+              fromUserId: myUid,
+              fromUserName: currentUserName
+            });
+          } catch (error) {
+            console.error("Error sending follow notification:", error);
           }
-        } catch (err) {
-          console.error("Follow/unfollow failed:", err);
         }
       };
+
+    } else {
+      backBtn.style.display = "none";
+      headerTitle.textContent = "My Profile";
+      plusFab.style.display = "flex";
+      logoutBtn.style.display = "inline-block";
+      followBtn.style.display = "none";
     }
 
-    // Load posts under the profile UID
+    // Load user info
     try {
-      const userPostsRef = ref(db, `posts/${uidToLoad}`);
-      const userPostsSnap = await get(userPostsRef);
+      const userSnap = await get(ref(db, `users/${uidToLoad}`));
+      if(userSnap.exists()) {
+        const data = userSnap.val();
+        realNameElem.textContent = data.realName || "No Name";
+        usernameElem.textContent = data.username ? `@${data.username}` : "Username";
+        emailElem.textContent = data.email || "";
+      }
+    } catch(e){ console.error("Error loading profile:", e); }
 
+    // Live followers & following count
+    onValue(ref(db, `users/${uidToLoad}/followers`), snap => {
+      followersCountElem.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+    });
+    onValue(ref(db, `users/${uidToLoad}/following`), snap => {
+      followingCountElem.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+    });
+
+    // Load posts
+    try {
+      const postsSnap = await get(ref(db, `users/${uidToLoad}/posts`));
       postsContainer.innerHTML = "";
-
-      if (userPostsSnap.exists()) {
-        const postsData = userPostsSnap.val();
-
-        for (const postId in postsData) {
-          const post = postsData[postId];
-          let mediaElem;
-          if(post.type === "video") {
-            mediaElem = document.createElement("video");
-            mediaElem.src = post.mediaURL;
-            mediaElem.controls = true;
-            mediaElem.classList.add("post-img");
-            mediaElem.style.borderRadius = "4px";
-            mediaElem.style.cursor = "pointer";
-          } else {
-            mediaElem = document.createElement("img");
-            mediaElem.src = post.mediaURL;
-            mediaElem.alt = post.caption || "Post";
-            mediaElem.classList.add("post-img");
-            mediaElem.style.cursor = "pointer";
+      if(postsSnap.exists()) {
+        const postsData = postsSnap.val();
+        const sortedPosts = Object.values(postsData).sort((a,b) => b.timestamp - a.timestamp);
+        sortedPosts.forEach(post => {
+          if(post.text && post.text.trim() !== "") {
+            const postBox = document.createElement("div");
+            postBox.classList.add("post-box");
+            postBox.textContent = post.text;
+            postsContainer.appendChild(postBox);
           }
-
-          mediaElem.onclick = () => {
-            lightbox.style.display = "flex";
-            lightboxImg.src = post.mediaURL;
-            lightboxCaption.textContent = post.caption || "";
-          };
-
-          postsContainer.appendChild(mediaElem);
-        }
+        });
       } else {
         postsContainer.innerHTML = "<p style='color:#ccc; text-align:center;'>No posts yet</p>";
       }
-    } catch (err) {
-      console.error("Error loading posts:", err);
+    } catch(e){
+      console.error("Error loading posts:", e);
       postsContainer.innerHTML = "<p style='color:#ccc; text-align:center;'>Error loading posts</p>";
     }
   });
 
-  // logout function
-  window.logout = async function () {
+  window.logout = async function() {
     await signOut(auth);
     window.location.href = "index.html";
   };
 </script>
+
 </body>
 </html>

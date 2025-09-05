@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebNet Admin - Poll Results</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+    }
+    header {
+      background: #181818;
+      padding: 15px;
+      font-size: 20px;
+      text-align: center;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+    }
+    main {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background: #2a2a2a;
+      font-weight: bold;
+    }
+    tr:hover {
+      background: #222;
+    }
+    .no-data {
+      margin-top: 20px;
+      text-align: center;
+      color: #aaa;
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #333;
+      padding: 10px 0;
+      background: #181818;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+    nav a {
+      color: #eee;
+      font-size: 20px;
+      text-decoration: none;
+    }
+    nav a:hover { color: #0a84ff; }
+  </style>
+</head>
+<body>
+  <header>Poll Admin Panel</header>
+
+  <main>
+    <h2>Votes Overview</h2>
+    <table id="votesTable">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Candidate</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="no-data" id="noDataMsg">No votes recorded yet.</p>
+  </main>
+
+  <nav>
+    <a href="home.html"><i class="fas fa-home"></i></a>
+    <a href="polls.html"><i class="fas fa-chart-bar"></i></a>
+    <a href="admin.html"><i class="fas fa-user-shield"></i></a>
+  </nav>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+      authDomain: "webnet2.firebaseapp.com",
+      projectId: "webnet2",
+      storageBucket: "webnet2.firebasestorage.app",
+      messagingSenderId: "323870835138",
+      appId: "1:323870835138:web:bca571d5620b766651565b",
+      databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const votesTable = document.querySelector("#votesTable tbody");
+    const noDataMsg = document.getElementById("noDataMsg");
+
+    // Listen for votes in RTDB
+    firebase.database().ref("pollVotes").on("value", (snapshot) => {
+      const data = snapshot.val();
+      votesTable.innerHTML = "";
+      if (!data) {
+        noDataMsg.style.display = "block";
+        return;
+      }
+      noDataMsg.style.display = "none";
+
+      Object.keys(data).forEach(userId => {
+        const voteInfo = data[userId];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${userId}</td>
+          <td>${voteInfo.candidate}</td>
+          <td>${new Date(voteInfo.timestamp).toLocaleString()}</td>
+        `;
+        votesTable.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+</html>

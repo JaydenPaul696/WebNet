@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/dark1.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/dark1.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/dark1.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css">
   <title>Welcome to WebNet</title>
+  
+  <!-- Theme switching -->
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+
+  <!-- Apple splash screen icons (optional but dope) -->
+  <link rel="apple-touch-icon" href="icons/icon-dark.png" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="icons/icon-light.png" media="(prefers-color-scheme: light)">
+  
+
   <style>
     body {
-      /* background: linear-gradient(to right, #0f0c29, #302b63, #24243e); */
+      background: #121212; /* Default dark mode */
       color: white;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
@@ -30,6 +43,17 @@
   </style>
 </head>
 <body>
+  <img src="">
+  <img src="icons/dark1.png" class="profile-pic">
+
+<style>
+  .profile-pic {
+    width: 100px;   /* or % like 50% */
+    height: 100px;  /* optional */
+    object-fit: cover; /* crops nicely instead of stretching */
+    border-radius: 50%; /* makes it round */
+  }
+</style>
   <h1 id="welcomeMsg">WebNet</h1>
   <p>Loading...</p>
 
@@ -53,14 +77,14 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        document.getElementById("welcomeMsg").textContent = `Welcome, ${user.displayName || user.email.split("@")[0]}!`;
+        document.getElementById("welcomeMsg").textContent =
+          `WELCOME ${user.displayName || user.email.split("@")[0]}!`;
 
-        // Wait 3 seconds then redirect to lobby.html
         setTimeout(() => {
-          window.location.href = "lobby.html";
+          window.location.href = "home.html";
         }, 3000);
       } else {
-        window.location.href = "login.html"; // Redirect to login if not signed in
+        window.location.href = "login.html";
       }
     });
   </script>
