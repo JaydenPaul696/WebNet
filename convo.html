@@ -93,6 +93,7 @@
       text-align: right;
     }
     .message-input-container {
+      position: fixed; 
       padding: 15px;
       background: #181818;
       border-top: 1px solid #333;
@@ -100,6 +101,20 @@
       gap: 10px;
       align-items: center;
     }
+  
+  .message-input-container {
+  position: fixed;  /* make it stick to the bottom */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 15px;
+  background: #181818;
+  border-top: 1px solid #333;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  z-index: 100; /* so it’s above messages */
+}
   
   .messages-container {
   flex: 1;
