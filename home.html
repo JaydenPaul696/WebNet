@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#0a84ff">
   <link rel="manifest" href="manifest.json">
-  <title>Lobby - WebNet</title>
+  <title>Messages - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     body {
@@ -27,98 +27,129 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      flex: 1;
+      text-align: center;
+    }
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .header-actions button {
+      background: none;
+      border: none;
+      color: #eee;
+      font-size: 18px;
+      cursor: pointer;
     }
     main {
       flex: 1;
       overflow-y: auto;
-      padding: 15px;
-      padding-bottom: 70px; /* Space for bottom nav */
-      padding-top: 10px;
+      padding: 0;
     }
-    .post {
-      background: #1e1e1e;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    .conversation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
     }
-    .post-header {
+    .conversation {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+      padding: 12px 15px;
+      border-bottom: 1px solid #252525;
+      cursor: pointer;
+      transition: background-color 0.2s;
     }
-    .user-avatar {
-      width: 40px;
-      height: 40px;
+    .conversation:hover {
+      background-color: #1e1e1e;
+    }
+    .conversation-avatar {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       background: #3247e7;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 20px;
+      margin-right: 15px;
+      flex-shrink: 0;
     }
-    .user-info {
+    .conversation-info {
       flex: 1;
+      min-width: 0;
     }
-    .username {
+    .conversation-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .conversation-name {
       font-weight: bold;
-      font-size: 14px;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .post-time {
+    .conversation-time {
       font-size: 12px;
       color: #888;
+      flex-shrink: 0;
     }
-    .caption {
-      font-size: 14px;
-      margin-bottom: 10px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      line-height: 1.4;
-    }
-    .post-media {
-      width: 100%;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      max-height: 400px;
-      object-fit: contain;
-    }
-    .post-actions {
+    .conversation-bottom {
       display: flex;
-      gap: 15px;
-      border-top: 1px solid #333;
-      padding-top: 10px;
-      margin-top: 10px;
+      justify-content: space-between;
+      align-items: center;
     }
-    .post-actions button {
-      background: none;
-      border: none;
+    .conversation-preview {
+      font-size: 14px;
       color: #888;
-      cursor: pointer;
-      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+    .conversation-unread {
+      background: #0a84ff;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
     }
-    .post-actions button:hover {
-      color: #0a84ff;
-    }
-    .loading {
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 70vh;
       text-align: center;
       padding: 20px;
       color: #888;
-      font-style: italic;
     }
-    .empty-feed {
-      text-align: center;
-      padding: 40px 20px;
-      color: #888;
-    }
-    .empty-feed i {
-      font-size: 48px;
-      margin-bottom: 10px;
-      display: block;
+    .empty-state i {
+      font-size: 80px;
+      margin-bottom: 20px;
       color: #444;
+    }
+    .empty-state h2 {
+      font-size: 22px;
+      margin: 0 0 10px 0;
+      color: #eee;
+    }
+    .empty-state p {
+      font-size: 16px;
+      line-height: 1.5;
+      max-width: 300px;
     }
     nav {
       display: flex;
@@ -139,7 +170,7 @@
       border-radius: 8px;
       transition: background-color 0.2s;
     }
-    nav a:hover {
+    nav a:hover, nav a.active {
       color: #0a84ff;
       background: #1e1e1e;
     }
@@ -149,8 +180,8 @@
       right: 20px;
       background: #0a84ff;
       color: white;
-      width: 50px;
-      height: 50px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -160,261 +191,199 @@
       cursor: pointer;
       z-index: 99;
       text-decoration: none;
+      transition: all 0.3s;
     }
     .fab:hover {
       background: #0066cc;
       transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(10, 132, 255, 0.4);
     }
-  .install-btn {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  background: #0a84ff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 20px;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.3s ease;
-}
-
-.install-btn:hover {
-  background: #0066cc;
-  transform: translateY(-2px);
-}
-
-.install-btn.hidden {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .install-btn {
-    top: 60px;
-    right: 10px;
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-}
+    .install-btn {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      background: #0a84ff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+    .install-btn.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    WebNet Feed
+    <div class="header-title">Messages</div>
+    <div class="header-actions">
+      <button><i class="fas fa-ellipsis-vertical"></i></button>
+    </div>
   </header>
 
-  <main id="feed">
-    <div class="loading">Loading posts...</div>
-  </main>
+  <main id="conversationsList"></main>
   
-  <a href="post.html" class="fab">
-    <i class="fas fa-plus"></i>
+  <a href="new-message.html" class="fab">
+    <i class="fas fa-comment"></i>
   </a>
 
   <nav>
-    <a href="home.html"><i class="fas fa-home"></i></a>
+    <a href="home.html" class="active"><i class="fas fa-comment"></i></a>
     <a href="search.html"><i class="fas fa-search"></i></a>
-    <a href="notifications.html"><i class="fas fa-bell"></i></a>
     <a href="profile.html"><i class="fas fa-user"></i></a>
-      <button id="installButton" class="install-btn hidden"><i class="fas fa-download"></i> Install App</button>
   </nav>
 
+  <button id="installButton" class="install-btn hidden"><i class="fas fa-download"></i> Install App</button>
+
   <script type="module">
-  // PWA Installation
-let deferredPrompt;
-const installButton = document.getElementById('installButton');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installButton.classList.remove('hidden');
-  console.log('PWA installation available');
-});
-
-installButton.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  console.log(`User response: ${outcome}`);
-  
-  deferredPrompt = null;
-  installButton.classList.add('hidden');
-});
-
-window.addEventListener('appinstalled', () => {
-  installButton.classList.add('hidden');
-  deferredPrompt = null;
-  console.log('PWA installed successfully!');
-  alert('WebNet installed successfully! 🎉');
-});
-// TEMPORARY: Force show button for testing (remove later)
-/* setTimeout(() => {
-  if (installButton.classList.contains('hidden')) {
-    console.log('Install button hidden, forcing show for testing');
-    installButton.classList.remove('hidden');
-  }
-}, 3000);
-  */
-// Hide button if already installed
-if (window.matchMedia('(display-mode: standalone)').matches) {
-  installButton.classList.add('hidden');
-}
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      collection, 
-      query, 
-      orderBy, 
-      onSnapshot,
-      Timestamp 
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
       authDomain: "webnet2.firebaseapp.com",
+      databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
       projectId: "webnet2",
       storageBucket: "webnet2.appspot.com",
       messagingSenderId: "323870835138",
-      appId: "1:323870835138:web:bca571d5620b766651565b",
-      databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+      appId: "1:323870835138:web:bca571d5620b766651565b"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const firestore = getFirestore(app);
-    const feed = document.getElementById("feed");
+    const db = getDatabase(app);
 
-    function formatTimestamp(timestamp) {
-      if (!timestamp) return 'Recently';
-      try {
-        const date = timestamp.toDate();
-        const now = new Date();
-        const diff = now - date;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
+    const conversationsList = document.getElementById('conversationsList');
 
-        if (minutes < 1) return 'Just now';
-        if (minutes < 60) return `${minutes}m ago`;
-        if (hours < 24) return `${hours}h ago`;
-        if (days < 7) return `${days}d ago`;
-        
-        return date.toLocaleDateString();
-      } catch (e) {
-        return 'Recently';
-      }
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+      return date.toLocaleDateString();
     }
 
-    function createPostElement(post) {
-      const postEl = document.createElement("div");
-      postEl.className = "post";
-
-      // Get username from email or use placeholder
-      const username = post.userEmail ? post.userEmail.split('@')[0] : 'User';
-      const userInitial = username.charAt(0).toUpperCase();
-
-      // Handle media content
-      let mediaHTML = '';
-      if (post.mediaURL) {
-        if (post.mediaType?.startsWith('image/')) {
-          mediaHTML = `<img src="${post.mediaURL}" alt="Post image" class="post-media" onerror="this.style.display='none'">`;
-        } else if (post.mediaType?.startsWith('video/')) {
-          mediaHTML = `
-            <video controls class="post-media" onerror="this.style.display='none'">
-              <source src="${post.mediaURL}" type="${post.mediaType}">
-              Your browser does not support the video tag.
-            </video>
-          `;
-        }
-      }
-
-      postEl.innerHTML = `
-        <div class="post-header">
-          <div class="user-avatar">${userInitial}</div>
-          <div class="user-info">
-            <div class="username">${username}</div>
-            <div class="post-time">${formatTimestamp(post.timestamp)}</div>
+    function createConversationElement(conversation) {
+      const li = document.createElement('li');
+      li.className = 'conversation';
+      const initial = conversation.name ? conversation.name.charAt(0).toUpperCase() : '?';
+      
+      li.innerHTML = `
+        <div class="conversation-avatar">${initial}</div>
+        <div class="conversation-info">
+          <div class="conversation-top">
+            <div class="conversation-name">${conversation.name}</div>
+            <div class="conversation-time">${formatTime(conversation.timestamp)}</div>
           </div>
-        </div>
-        ${post.text ? `<div class="caption">${post.text}</div>` : ''}
-        ${mediaHTML}
-        <div class="post-actions">
-          <button onclick="likePost('${post.id}')">
-            <i class="far fa-heart"></i> Like
-          </button>
-          <button onclick="commentPost('${post.id}')">
-            <i class="far fa-comment"></i> Comment
-          </button>
-          <button onclick="sharePost('${post.id}')">
-            <i class="far fa-share-square"></i> Share
-          </button>
+          <div class="conversation-bottom">
+            <div class="conversation-preview">${conversation.lastMessage || 'Start a conversation'}</div>
+            ${conversation.unreadCount > 0 ? `<div class="conversation-unread">${conversation.unreadCount}</div>` : ''}
+          </div>
         </div>
       `;
 
-      return postEl;
+      li.addEventListener('click', () => {
+        window.location.href = `convo.html?userId=${conversation.userId}`;
+      });
+
+      return li;
     }
 
-    function loadPosts() {
-      const q = query(collection(firestore, "posts"), orderBy("timestamp", "desc"));
-      
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        feed.innerHTML = '';
-        
-        if (snapshot.empty) {
-          feed.innerHTML = `
-            <div class="empty-feed">
-              <i class="fas fa-feather"></i>
-              <p>No posts yet</p>
-              <p>Be the first to share something!</p>
+    function loadConversations(userId) {
+      const userConvosRef = ref(db, `users/${userId}/conversations`);
+
+      onValue(userConvosRef, (snapshot) => {
+        if (!snapshot.exists()) {
+          conversationsList.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-comments"></i>
+              <h2>No Messages Yet</h2>
+              <p>Tap the <i class="fas fa-comment" style="font-size: 30px;"></i> button below to start a conversation</p>
             </div>
           `;
           return;
         }
 
-        snapshot.forEach((doc) => {
-          const post = { id: doc.id, ...doc.data() };
-          const postElement = createPostElement(post);
-          feed.appendChild(postElement);
+        // Convert snapshot to array
+        const conversations = [];
+        snapshot.forEach(childSnapshot => {
+          const convo = childSnapshot.val();
+          conversations.push({
+            userId: convo.otherUserId,
+            name: convo.otherUserName,
+            lastMessage: convo.lastMessage,
+            timestamp: convo.lastMessageTimestamp,
+            unreadCount: convo.unreadCount || 0
+          });
         });
-      }, (error) => {
-        console.error("Error loading posts:", error);
-        feed.innerHTML = '<div class="loading">Error loading posts. Please refresh.</div>';
-      });
 
-      return unsubscribe;
+        // Sort by latest message first
+        conversations.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        const ul = document.createElement('ul');
+        ul.className = 'conversation-list';
+
+        conversations.forEach(convo => {
+          ul.appendChild(createConversationElement(convo));
+        });
+
+        conversationsList.innerHTML = '';
+        conversationsList.appendChild(ul);
+      });
     }
 
-    // Security check - boot unauthorized users
+    // Auth check
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "index.html";
         return;
       }
-
-      console.log("User authenticated, loading Firestore posts...");
-      loadPosts();
+      loadConversations(user.uid);
     });
 
-    // Action functions
-    window.likePost = function(postId) {
-      alert('Like functionality coming soon! Post ID: ' + postId);
-    };
+    // PWA install button logic
+    let deferredPrompt;
+    const installButton = document.getElementById('installButton');
 
-    window.commentPost = function(postId) {
-      alert('Comment functionality coming soon! Post ID: ' + postId);
-    };
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installButton.classList.remove('hidden');
+    });
 
-    window.sharePost = function(postId) {
-      alert('Share functionality coming soon! Post ID: ' + postId);
-    };
+    installButton.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installButton.classList.add('hidden');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installButton.classList.add('hidden');
+      deferredPrompt = null;
+    });
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      installButton.classList.add('hidden');
+    }
   </script>
 </body>
 </html>
