@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - WebNet</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* WebNet Header Style */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #333;
+      background: #181818;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .admin-badge {
+      background: #0a84ff;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    
+    main { 
+      padding: 80px 15px 70px; 
+      flex: 1; 
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    /* Loader */
+    .loader-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    
+    .loader {
+      border: 6px solid #2a2a2a;
+      border-top: 6px solid #0a84ff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    
+    /* Stats Overview */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0a84ff;
+      margin: 5px 0;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #888;
+    }
+    
+    /* Bulk Actions */
+    .bulk-actions {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      padding: 15px;
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+    
+    .bulk-actions button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #0a84ff;
+      color: #fff;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .bulk-actions button:hover {
+      background: #0066cc;
+      transform: translateY(-2px);
+    }
+    
+    .bulk-actions button.delete {
+      background: #e0245e;
+    }
+    
+    .bulk-actions button.delete:hover {
+      background: #b01a48;
+    }
+    
+    /* Grid & Cards */
+    #postList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card.hidden-post {
+      opacity: 0.7;
+      border-left: 4px solid #e0245e;
+    }
+    
+    .card.hidden-post::after {
+      content: "HIDDEN";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e0245e;
+      color: white;
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .card-content {
+      padding: 15px;
+    }
+    
+    .caption {
+      font-size: 14px;
+      color: #ccc;
+      margin: 10px 0;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    
+    .post-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .post-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .edit-btn {
+      background: #0a84ff;
+      color: #fff;
+    }
+    
+    .edit-btn:hover {
+      background: #0066cc;
+    }
+    
+    .delete-btn {
+      background: #e0245e;
+      color: #fff;
+    }
+    
+    .delete-btn:hover {
+      background: #b01a48;
+    }
+    
+    .hide-btn {
+      background: #888;
+      color: #fff;
+    }
+    
+    .hide-btn:hover {
+      background: #666;
+    }
+    
+    .checkbox-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+    }
+    
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    
+    .modal-content {
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-title {
+      margin: 0;
+      color: #0a84ff;
+      font-size: 22px;
+    }
+    
+    .modal-content input, 
+    .modal-content textarea {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #252525;
+      color: #eee;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    
+    .modal-content textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .modal-content button {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #0a84ff;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+    }
+    
+    .modal-content button:hover {
+      background: #0066cc;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 26px;
+      cursor: pointer;
+      color: #fff;
+      transition: color 0.2s;
+    }
+    
+    .close-btn:hover {
+      color: #0a84ff;
+    }
+    
+    /* Image preview in modal */
+    #editPreview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border-radius: 8px;
+      display: none;
+      margin-bottom: 10px;
+      background: #252525;
+      padding: 10px;
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 3000;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .toast.show {
+      opacity: 1;
+    }
+    
+    .toast.success {
+      background: #0a84ff;
+    }
+    
+    .toast.error {
+      background: #e0245e;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      #postList {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 15px;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .bulk-actions button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* WebNet Navigation */
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #333;
+      background: #181818;
+      padding: 12px 0;
+      z-index: 1000;
+    }
+    
+    nav a { 
+      color: #eee; 
+      font-size: 20px; 
+      text-decoration: none; 
+      padding: 5px 15px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    nav a:hover, 
+    nav a.active { 
+      color: #0a84ff; 
+      background: #1e1e1e;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div></div>
+  <div class="header-title">WebNet Admin Panel</div>
+  <div class="admin-badge">ADMIN</div>
+</header>
+
+<!-- Loader -->
+<div id="loaderWrap" class="loader-wrap">
+  <div class="loader"></div>
+  <p>Loading posts...</p>
+</div>
+
+<main id="content" style="display:none;">
+  <!-- Stats Overview -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-number" id="totalPosts">0</div>
+      <div class="stat-label">Total Posts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="visiblePosts">0</div>
+      <div class="stat-label">Visible Posts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="hiddenPosts">0</div>
+      <div class="stat-label">Hidden Posts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="selectedCount">0</div>
+      <div class="stat-label">Selected</div>
+    </div>
+  </div>
+  
+  <!-- Bulk Actions -->
+  <div class="bulk-actions">
+    <button id="deleteSelected">
+      <i class="fas fa-trash"></i> Delete Selected
+    </button>
+    <button id="hideSelected">
+      <i class="fas fa-eye-slash"></i> Hide Selected
+    </button>
+    <button id="unhideSelected">
+      <i class="fas fa-eye"></i> Unhide Selected
+    </button>
+  </div>
+  
+  <!-- Posts Grid -->
+  <div id="postList"></div>
+</main>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <span class="close-btn" id="closeEdit">&times;</span>
+    <h3 class="modal-title">Edit Post</h3>
+    <img id="editPreview" src="" alt="Preview"/>
+    <input type="file" id="editFileInput" accept="image/*"/>
+    <input type="text" id="editImage" placeholder="Image URL"/>
+    <textarea id="editCaption" placeholder="Caption"></textarea>
+    <button id="saveEdit">Save Changes</button>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMessage"></span>
+</div>
+
+<!-- WebNet Navigation -->
+<nav>
+  <a href="home.html"><i class="fas fa-home"></i></a>
+  <a href="search.html"><i class="fas fa-search"></i></a>
+  <a href="profile.html"><i class="fas fa-user"></i></a>
+  <a href="admin.html" class="active"><i class="fas fa-cog"></i></a>
+</nav>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+  authDomain: "webnet2.firebaseapp.com",
+  databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
+  projectId: "webnet2",
+  storageBucket: "webnet2.appspot.com",
+  messagingSenderId: "323870835138",
+  appId: "1:323870835138:web:bca571d5620b766651565b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const imgbbKey = "b31a521a301e076d60af4558f03fc9db";
+const imgbbEndpoint = "https://api.imgbb.com/1/upload";
+
+const loaderWrap = document.getElementById("loaderWrap");
+const content = document.getElementById("content");
+const postList = document.getElementById("postList");
+const editModal = document.getElementById("editModal");
+const closeEdit = document.getElementById("closeEdit");
+const editPreview = document.getElementById("editPreview");
+const editFileInput = document.getElementById("editFileInput");
+const editImage = document.getElementById("editImage");
+const editCaption = document.getElementById("editCaption");
+const saveEdit = document.getElementById("saveEdit");
+const toast = document.getElementById("toast");
+const toastMessage = document.getElementById("toastMessage");
+
+// Stats elements
+const totalPostsEl = document.getElementById("totalPosts");
+const visiblePostsEl = document.getElementById("visiblePosts");
+const hiddenPostsEl = document.getElementById("hiddenPosts");
+const selectedCountEl = document.getElementById("selectedCount");
+
+let posts = [];
+let selectedPosts = new Set();
+let editPostKey = null;
+
+// Show toast notification
+function showToast(message, type = "success") {
+  toastMessage.textContent = message;
+  toast.className = `toast ${type}`;
+  toast.classList.add("show");
+  
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+
+// Update stats
+function updateStats() {
+  const total = posts.length;
+  const hidden = posts.filter(post => post.hidden).length;
+  const visible = total - hidden;
+  
+  totalPostsEl.textContent = total;
+  visiblePostsEl.textContent = visible;
+  hiddenPostsEl.textContent = hidden;
+  selectedCountEl.textContent = selectedPosts.size;
+}
+
+// Loader
+setTimeout(() => {
+  loaderWrap.style.display = "none";
+  content.style.display = "block";
+}, 2000);
+
+// Load posts
+function loadPosts() {
+  onValue(ref(db, "posts"), snapshot => {
+    postList.innerHTML = "";
+    posts = [];
+    selectedPosts.clear();
+    
+    if (!snapshot.exists()) {
+      postList.innerHTML = `<div class="empty-state">No posts found</div>`;
+      updateStats();
+      return;
+    }
+    
+    snapshot.forEach(child => {
+      const key = child.key;
+      const data = child.val();
+      posts.push({ key, ...data });
+      
+      const card = document.createElement("div");
+      card.className = `card ${data.hidden ? "hidden-post" : ""}`;
+      
+      card.innerHTML = `
+        <div class="checkbox-container">
+          <input type="checkbox" class="checkbox" data-key="${key}">
+        </div>
+        ${data.image ? `<img src="${data.image}" loading="lazy" />` : ""}
+        <div class="card-content">
+          <p class="caption">${data.caption || "No caption"}</p>
+          <div class="post-meta">
+            <span>${data.user?.name || "Unknown user"}</span>
+            <span>${formatDate(data.timestamp)}</span>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn edit-btn" data-key="${key}">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="action-btn hide-btn" data-key="${key}">
+              <i class="fas ${data.hidden ? 'fa-eye' : 'fa-eye-slash'}"></i> ${data.hidden ? 'Show' : 'Hide'}
+            </button>
+            <button class="action-btn delete-btn" data-key="${key}">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Checkbox event
+      const checkbox = card.querySelector(".checkbox");
+      checkbox.addEventListener("change", e => {
+        if (e.target.checked) {
+          selectedPosts.add(key);
+        } else {
+          selectedPosts.delete(key);
+        }
+        updateStats();
+      });
+      
+      // Edit event
+      card.querySelector(".edit-btn").addEventListener("click", () => {
+        openEditModal(key, data);
+      });
+      
+      // Hide/Show event
+      card.querySelector(".hide-btn").addEventListener("click", () => {
+        togglePostVisibility(key, data);
+      });
+      
+      // Delete event
+      card.querySelector(".delete-btn").addEventListener("click", () => {
+        if (confirm("Are you sure you want to delete this post?")) {
+          deletePost(key);
+        }
+      });
+      
+      postList.appendChild(card);
+    });
+    
+    updateStats();
+  });
+}
+
+// Format date
+function formatDate(timestamp) {
+  if (!timestamp) return "Unknown date";
+  
+  const date = new Date(timestamp);
+  return date.toLocaleDateString();
+}
+
+// Toggle post visibility
+function togglePostVisibility(key, data) {
+  update(ref(db, "posts/" + key), { 
+    hidden: !data.hidden 
+  })
+  .then(() => {
+    showToast(`Post ${!data.hidden ? 'hidden' : 'unhidden'} successfully`);
+  })
+  .catch(error => {
+    console.error("Error toggling post visibility:", error);
+    showToast("Error updating post", "error");
+  });
+}
+
+// Delete post
+function deletePost(key) {
+  remove(ref(db, "posts/" + key))
+    .then(() => {
+      showToast("Post deleted successfully");
+      selectedPosts.delete(key);
+      updateStats();
+    })
+    .catch(error => {
+      console.error("Error deleting post:", error);
+      showToast("Error deleting post", "error");
+    });
+}
+
+// Bulk actions
+document.getElementById("deleteSelected").addEventListener("click", () => {
+  if (selectedPosts.size === 0) {
+    showToast("Please select posts to delete", "error");
+    return;
+  }
+  
+  if (confirm(`Are you sure you want to delete ${selectedPosts.size} post(s)?`)) {
+    selectedPosts.forEach(key => {
+      remove(ref(db, "posts/" + key));
+    });
+    showToast(`${selectedPosts.size} post(s) deleted`);
+    selectedPosts.clear();
+    updateStats();
+  }
+});
+
+document.getElementById("hideSelected").addEventListener("click", () => {
+  if (selectedPosts.size === 0) {
+    showToast("Please select posts to hide", "error");
+    return;
+  }
+  
+  selectedPosts.forEach(key => {
+    update(ref(db, "posts/" + key), { hidden: true });
+  });
+  showToast(`${selectedPosts.size} post(s) hidden`);
+});
+
+document.getElementById("unhideSelected").addEventListener("click", () => {
+  if (selectedPosts.size === 0) {
+    showToast("Please select posts to unhide", "error");
+    return;
+  }
+  
+  selectedPosts.forEach(key => {
+    update(ref(db, "posts/" + key), { hidden: false });
+  });
+  showToast(`${selectedPosts.size} post(s) unhidden`);
+});
+
+// Edit modal
+function openEditModal(key, data) {
+  editPostKey = key;
+  editImage.value = data.image || "";
+  editCaption.value = data.caption || "";
+  editPreview.src = data.image || "";
+  editPreview.style.display = data.image ? "block" : "none";
+  editModal.style.display = "flex";
+}
+
+closeEdit.addEventListener("click", () => {
+  editModal.style.display = "none";
+});
+
+editModal.addEventListener("click", e => {
+  if (e.target === editModal) {
+    editModal.style.display = "none";
+  }
+});
+
+// Save caption edits
+saveEdit.addEventListener("click", async () => {
+  if (!editPostKey) return;
+  
+  await update(ref(db, "posts/" + editPostKey), {
+    image: editImage.value.trim(),
+    caption: editCaption.value.trim()
+  });
+  
+  showToast("Post updated successfully");
+  editModal.style.display = "none";
+  editPostKey = null;
+});
+
+// ImgBB file upload
+editFileInput.addEventListener("change", async () => {
+  const file = editFileInput.files[0];
+  if (!file || !editPostKey) return;
+  
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("key", imgbbKey);
+  
+  try {
+    const res = await fetch(imgbbEndpoint, { method: "POST", body: formData });
+    const data = await res.json();
+    
+    if (data.success) {
+      const newUrl = data.data.url;
+      editImage.value = newUrl;
+      editPreview.src = newUrl;
+      editPreview.style.display = "block";
+      
+      await update(ref(db, "posts/" + editPostKey), { image: newUrl });
+      showToast("Image updated successfully");
+    } else {
+      showToast("Image upload failed", "error");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Upload failed", "error");
+  }
+});
+
+// Initialize
+loadPosts();
+</script>
+</body>
+</html>
