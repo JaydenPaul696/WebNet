@@ -9,7 +9,7 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: #121212;
       color: #eee;
       min-height: 100vh;
@@ -28,6 +28,31 @@
       border-bottom: 1px solid #333;
       background: #181818;
       z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .auth-btn {
+      background: #0a84ff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .auth-btn.signout {
+      background: #444;
     }
 
     main {
@@ -57,6 +82,29 @@
       100% { transform: rotate(360deg);} 
     }
 
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      color: #888;
+    }
+    
+    .empty-state i {
+      font-size: 60px;
+      margin-bottom: 15px;
+      color: #444;
+    }
+    
+    .empty-state p {
+      font-size: 16px;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
     /* Grid of posts */
     #postList {
       display: grid;
@@ -69,7 +117,14 @@
       overflow: hidden;
       cursor: pointer;
       position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
+    
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
     .card img {
       width: 100%;
       height: 120px;
@@ -88,20 +143,26 @@
       cursor: pointer;
       font-size: 16px;
       color: #888;
+      transition: color 0.2s;
     }
     .like-btn.liked {
       color: #e0245e;
+    }
+    
+    .like-btn:hover {
+      transform: scale(1.1);
     }
 
     /* View Modal */
     .view-modal {
       position: fixed;
       top: 0; left: 0; right:0; bottom:0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.92);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 2000;
+      padding: 20px;
     }
     .view-modal-content {
       max-width: 90%;
@@ -110,16 +171,22 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 10px;
+      gap: 15px;
+      position: relative;
     }
     .view-modal-content img {
       max-width: 100%;
       max-height: 70vh;
       border-radius: 8px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.5);
     }
     .view-caption {
-      font-size: 14px;
+      font-size: 16px;
       color: #ddd;
+      background: rgba(30,30,30,0.8);
+      padding: 12px 15px;
+      border-radius: 8px;
+      max-width: 500px;
     }
     .close-btn {
       position: absolute;
@@ -128,13 +195,24 @@
       font-size: 28px;
       color: #fff;
       cursor: pointer;
+      background: rgba(0,0,0,0.5);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .close-btn:hover {
+      background: rgba(0,0,0,0.7);
     }
 
     /* Upload Modal */
     .upload-modal {
       position: fixed;
       top: 0; left: 0; right:0; bottom:0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.92);
       display: none;
       align-items: center;
       justify-content: center;
@@ -142,27 +220,55 @@
     }
     .upload-content {
       background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
+      padding: 25px;
+      border-radius: 12px;
       width: 90%;
       max-width: 400px;
       text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
+    
+    .upload-content h3 {
+      margin-top: 0;
+      color: #0a84ff;
+    }
+    
     .upload-content input, .upload-content textarea {
       width: 100%;
-      margin: 8px 0;
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #333;
       outline: none;
+      background: #252525;
+      color: #eee;
+      font-family: inherit;
     }
+    
+    .upload-content textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
     .upload-content button {
-      padding: 10px 15px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       background: #0a84ff;
       color: #fff;
       cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    
+    .upload-content button:hover {
+      background: #0066cc;
+    }
+    
+    .upload-content button:disabled {
+      background: #444;
+      cursor: not-allowed;
     }
 
     /* Floating Plus Button */
@@ -170,8 +276,8 @@
       position: fixed;
       bottom: 80px;
       right: 20px;
-      width: 55px;
-      height: 55px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       background: #0a84ff;
       display: flex;
@@ -181,7 +287,13 @@
       color: #fff;
       cursor: pointer;
       z-index: 1500;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4);
+      transition: all 0.3s;
+    }
+    
+    .fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(10, 132, 255, 0.6);
     }
 
     /* Bottom Nav */
@@ -193,15 +305,70 @@
       justify-content: space-around;
       border-top: 1px solid #333;
       background: #181818;
-      padding: 10px 0;
+      padding: 12px 0;
       z-index: 1000;
     }
-    nav a { color: #eee; font-size: 20px; text-decoration: none; }
-    nav a:hover { color: #0a84ff; }
+    
+    nav a { 
+      color: #eee; 
+      font-size: 20px; 
+      text-decoration: none; 
+      padding: 5px 15px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    nav a:hover, nav a.active { 
+      color: #0a84ff; 
+      background: #1e1e1e;
+    }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 3000;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .toast.show {
+      opacity: 1;
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+      #postList {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+      }
+      
+      .card img {
+        height: 160px;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>WebNet Posts</header>
+  <header>
+    <div></div> <!-- Empty div for spacing -->
+    <div class="header-title">WebNet Posts</div>
+    <div class="auth-buttons">
+      <button id="signInBtn" class="auth-btn" style="display: none;">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+      <button id="signOutBtn" class="auth-btn signout" style="display: none;">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </div>
+  </header>
 
   <!-- Loader -->
   <div id="loaderWrap" class="loader-wrap">
@@ -211,7 +378,15 @@
 
   <main id="content" style="display:none;">
     <div id="postList"></div>
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <i class="fas fa-camera"></i>
+      <h3>No Posts Yet</h3>
+      <p>Be the first to share a post!</p>
+    </div>
   </main>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
 
   <!-- Floating + Button -->
   <div class="fab" id="openUpload"><i class="fas fa-plus"></i></div>
@@ -219,10 +394,12 @@
   <!-- Upload Modal -->
   <div class="upload-modal" id="uploadModal">
     <div class="upload-content">
-      <h3>New Post</h3>
+      <h3>Create New Post</h3>
       <input type="file" id="imageInput" accept="image/*"/>
       <textarea id="captionInput" rows="3" placeholder="Write a caption..."></textarea>
-      <button id="uploadBtn">Upload</button>
+      <img id="imagePreview" style="max-width: 100%; margin-top: 10px; border-radius: 5px; display: none;">
+      <button id="uploadBtn">Upload Post</button>
+      <button id="cancelUpload" style="background: #444; margin-left: 10px;">Cancel</button>
     </div>
   </div>
 
@@ -236,7 +413,7 @@
   </div>
 
   <nav>
-    <a href="home.html"><i class="fas fa-comment"></i></a>
+    <a href="home.html" class="active"><i class="fas fa-comment"></i></a>
     <a href="search.html"><i class="fas fa-search"></i></a>
     <a href="profile.html"><i class="fas fa-user"></i></a>
   </nav>
@@ -264,9 +441,14 @@
   const db = getDatabase(app);
   const auth = getAuth(app);
 
+  // DOM Elements
   const loaderWrap = document.getElementById("loaderWrap");
   const content = document.getElementById("content");
   const postList = document.getElementById("postList");
+  const emptyState = document.getElementById("emptyState");
+  const signInBtn = document.getElementById("signInBtn");
+  const signOutBtn = document.getElementById("signOutBtn");
+  const toast = document.getElementById("toast");
 
   const viewModal = document.getElementById("viewModal");
   const closeView = document.getElementById("closeView");
@@ -276,22 +458,28 @@
   const uploadModal = document.getElementById("uploadModal");
   const openUpload = document.getElementById("openUpload");
   const uploadBtn = document.getElementById("uploadBtn");
+  const cancelUpload = document.getElementById("cancelUpload");
   const imageInput = document.getElementById("imageInput");
   const captionInput = document.getElementById("captionInput");
-
-  // Add preview img element dynamically
-  const previewImg = document.createElement("img");
-  previewImg.style.maxWidth = "100%";
-  previewImg.style.marginTop = "10px";
-  previewImg.style.borderRadius = "5px";
-  imageInput.insertAdjacentElement("afterend", previewImg);
+  const imagePreview = document.getElementById("imagePreview");
 
   let currentUser = null;
 
+  // Show toast notification
+  function showToast(message, duration = 3000) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, duration);
+  }
+
+  // Hide loader after 2 seconds
   setTimeout(() => {
     loaderWrap.style.display = "none";
     content.style.display = "block";
-  }, 3000);
+  }, 2000);
 
   // Show preview when file chosen
   imageInput.addEventListener("change", (e) => {
@@ -299,27 +487,62 @@
     if (file) {
       const reader = new FileReader();
       reader.onload = (ev) => {
-        previewImg.src = ev.target.result;
+        imagePreview.src = ev.target.result;
+        imagePreview.style.display = "block";
       };
       reader.readAsDataURL(file);
     } else {
-      previewImg.src = "";
+      imagePreview.src = "";
+      imagePreview.style.display = "none";
     }
   });
 
   function loadPosts() {
     onValue(ref(db, "posts"), (snapshot) => {
+      if (!snapshot.exists()) {
+        postList.innerHTML = "";
+        emptyState.style.display = "flex";
+        return;
+      }
+      
+      emptyState.style.display = "none";
       postList.innerHTML = "";
+      
+      // Convert to array and sort by timestamp if available
+      const posts = [];
       snapshot.forEach((child) => {
-        const { image = "", caption = "", likes = {} } = child.val();
-        const id = child.key;
+        posts.push({
+          id: child.key,
+          ...child.val()
+        });
+      });
+      
+      // Sort by timestamp if available, otherwise keep original order
+      posts.sort((a, b) => {
+        const timeA = a.timestamp || 0;
+        const timeB = b.timestamp || 0;
+        return timeB - timeA; // Newest first
+      });
+
+      let visiblePostsCount = 0;
+
+      posts.forEach((post) => {
+        // Skip hidden posts - FIXED!
+        if (post.hidden) {
+          return; // This will skip processing hidden posts
+        }
+        
+        visiblePostsCount++;
+        
+        const { image = "", caption = "", likes = {} } = post;
+        const id = post.id;
         const liked = currentUser && likes[currentUser.uid];
         const likeCount = Object.keys(likes).length;
 
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          ${image ? `<img src="${image}" alt="Post image" />` : ""}
+          ${image ? `<img src="${image}" alt="Post image" loading="lazy" />` : ""}
           <div class="like-bar">
             <i class="fas fa-heart like-btn ${liked ? "liked" : ""}" data-id="${id}"></i>
             <span class="like-count">${likeCount}</span>
@@ -335,95 +558,171 @@
         card.querySelector(".like-btn").addEventListener("click", (e) => {
           e.stopPropagation();
           if (!currentUser) {
-            alert("Sign in to like posts.");
+            showToast("Please sign in to like posts");
             return;
           }
           const postRef = ref(db, `posts/${id}/likes/${currentUser.uid}`);
           if (liked) {
             remove(postRef);
+            showToast("Like removed");
           } else {
             set(postRef, true);
+            showToast("Post liked");
           }
         });
 
         postList.appendChild(card);
       });
+      
+      // Show empty state if no visible posts
+      if (visiblePostsCount === 0) {
+        emptyState.style.display = "flex";
+      }
     });
   }
 
   // Upload Modal toggle
   openUpload.addEventListener("click", () => {
     if (!currentUser) {
-      alert("You must sign in to upload.");
+      showToast("Please sign in to upload posts");
       return;
     }
     uploadModal.style.display = "flex";
   });
+  
   uploadModal.addEventListener("click", (e) => {
-    if (e.target === uploadModal) uploadModal.style.display = "none";
+    if (e.target === uploadModal) {
+      resetUploadForm();
+      uploadModal.style.display = "none";
+    }
   });
+  
+  cancelUpload.addEventListener("click", () => {
+    resetUploadForm();
+    uploadModal.style.display = "none";
+  });
+  
+  function resetUploadForm() {
+    imageInput.value = "";
+    captionInput.value = "";
+    imagePreview.src = "";
+    imagePreview.style.display = "none";
+  }
 
   // Upload handler with ImgBB
   uploadBtn.addEventListener("click", async () => {
     const file = imageInput.files[0];
     const caption = captionInput.value;
+    
     if (!file) {
-      alert("Please select an image.");
-      return;
-    }
-    if (!currentUser) {
-      alert("You must sign in to upload.");
+      showToast("Please select an image");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("image", file);
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = "Uploading...";
 
     try {
+      const formData = new FormData();
+      formData.append("image", file);
+
       const res = await fetch("https://api.imgbb.com/1/upload?key=b31a521a301e076d60af4558f03fc9db", {
         method: "POST",
         body: formData
       });
+      
       const data = await res.json();
+      
       if (data.success) {
         const imageUrl = data.data.url;
         const postRef = push(ref(db, "posts"));
+        
         set(postRef, { 
           image: imageUrl, 
           caption, 
           likes: {}, 
-          user: { uid: currentUser.uid, name: currentUser.displayName || "Anon" }
+          user: { 
+            uid: currentUser.uid, 
+            name: currentUser.displayName || "Anonymous" 
+          },
+          timestamp: Date.now()
         });
+        
+        showToast("Post uploaded successfully!");
+        resetUploadForm();
         uploadModal.style.display = "none";
-        imageInput.value = "";
-        captionInput.value = "";
-        previewImg.src = "";
       } else {
-        alert("Upload failed.");
+        showToast("Upload failed. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      alert("Error uploading image.");
+      showToast("Error uploading image");
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "Upload Post";
     }
   });
 
   closeView.addEventListener("click", () => viewModal.style.display = "none");
-
-  // Firebase Auth
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      loadPosts();
-    } else {
-      currentUser = null;
-      loadPosts();
+  
+  viewModal.addEventListener("click", (e) => {
+    if (e.target === viewModal) {
+      viewModal.style.display = "none";
     }
   });
 
-  // Quick Google Sign-In (for testing)
+  // Auth state change handler
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      signInBtn.style.display = "none";
+      signOutBtn.style.display = "flex";
+      showToast(`Welcome, ${user.displayName || "User"}!`);
+    } else {
+      currentUser = null;
+      signInBtn.style.display = "flex";
+      signOutBtn.style.display = "none";
+    }
+    loadPosts();
+  });
+
+  // Auth button handlers
   const provider = new GoogleAuthProvider();
-  window.signIn = () => signInWithPopup(auth, provider).catch(err => alert(err.message));
-  window.signOutUser = () => signOut(auth);
+  
+  signInBtn.addEventListener("click", () => {
+    signInWithPopup(auth, provider)
+      .then(() => {
+        showToast("Signed in successfully!");
+      })
+      .catch(err => {
+        console.error(err);
+        showToast("Sign in failed. Please try again.");
+      });
+  });
+  
+  signOutBtn.addEventListener("click", () => {
+    signOut(auth)
+      .then(() => {
+        showToast("Signed out successfully");
+      })
+      .catch(err => {
+        console.error(err);
+        showToast("Sign out error");
+      });
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (viewModal.style.display === 'flex') {
+        viewModal.style.display = 'none';
+      }
+      if (uploadModal.style.display === 'flex') {
+        resetUploadForm();
+        uploadModal.style.display = 'none';
+      }
+    }
+  });
 </script>
 </body>
 </html>

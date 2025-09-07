@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebNet - Settings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header */
+    header {
+      padding: 15px;
+      background: #181818;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      flex: 1;
+    }
+    
+    .back-btn {
+      background: #0a84ff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    
+    .back-btn:hover {
+      background: #0066cc;
+    }
+    
+    /* Loader */
+    .loader-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 70vh;
+    }
+    
+    .loader {
+      border: 6px solid #2a2a2a;
+      border-top: 6px solid #0a84ff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #3247e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 15px;
+      color: white;
+    }
+    
+    .profile-header h2 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    
+    .profile-header p {
+      color: #888;
+    }
+    
+    /* Settings Form */
+    .settings-form {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #ccc;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #252525;
+      color: #eee;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #0a84ff;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: #0a84ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+    
+    .save-btn:hover {
+      background: #0066cc;
+    }
+    
+    .save-btn:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+    
+    /* Danger Zone */
+    .danger-zone {
+      background: #2a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #e0245e;
+    }
+    
+    .danger-zone h3 {
+      color: #e0245e;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .danger-btn {
+      padding: 12px 20px;
+      background: #e0245e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .danger-btn:hover {
+      background: #b01a48;
+    }
+    
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .toast.show {
+      opacity: 1;
+    }
+    
+    .toast.success {
+      background: #0a84ff;
+    }
+    
+    .toast.error {
+      background: #e0245e;
+    }
+    
+    /* Navigation */
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #333;
+      background: #181818;
+      padding: 12px 0;
+      z-index: 100;
+    }
+    
+    nav a {
+      color: #eee;
+      font-size: 20px;
+      text-decoration: none;
+      padding: 5px 15px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    nav a:hover,
+    nav a.active {
+      color: #0a84ff;
+      background: #1e1e1e;
+    }
+    
+    a{
+      text-decoration: none;
+    }
+    
+    .warning {
+      background: #332b1a;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      border-left: 4px solid #ffcc00;
+    }
+    
+    .warning h3 {
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="profile.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <div class="header-title">Settings</div>
+    <div style="width: 100px;"></div> <!-- Spacer for balance -->
+  </header>
+
+  <main>
+    <div class="loader-wrap" id="loaderWrap">
+      <div class="loader"></div>
+      <p>Loading your settings...</p>
+    </div>
+
+    <div id="content" style="display: none;">
+      <div class="profile-header">
+        <div class="avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <h2 id="profileName">User Name</h2>
+        <p id="profileEmail">user@example.com</p>
+      </div>
+
+      <div class="settings-form">
+        <h3 style="margin-bottom: 20px; color: #0a84ff;">Edit Profile</h3>
+        
+        <div class="form-group">
+          <label for="displayName">Display Name</label>
+          <input type="text" id="displayName" placeholder="Your display name">
+        </div>
+        
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Your username">
+        </div>
+        
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio" placeholder="Tell others about yourself"></textarea>
+        </div>
+        
+        <div class="warning">
+          <h3>Warning!</h3>
+          <p style="margin-bottom: 15px; color: #ccc;">Changing your information will not affect your existing data. Your chats, followers, and posts are safe.</p>
+        </div>
+        
+        <button id="saveProfile" class="save-btn">Save Changes</button>
+      </div>
+      
+      <div class="danger-zone">
+        <h3>Data Recovery</h3>
+        <p style="margin-bottom: 15px; color: #ccc;">Attempt to recover lost chat data.</p>
+        <button class="danger-btn" id="recoverData" style="background: #0a84ff;">
+          <i class="fas fa-history"></i> Attempt Data Recovery
+        </button>
+        
+        <h3 style="margin-top: 30px;">Danger Zone</h3>
+        <p style="margin-bottom: 15px; color: #ccc;">Once you delete your account, there is no going back. Please be certain.</p>
+        <button class="danger-btn" id="deleteAccount">
+          <i class="fas fa-trash"></i> Delete Account
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage"></span>
+  </div>
+
+  <nav>
+    <a href="home.html"><i class="fas fa-comment"></i></a>
+    <a href="search.html"><i class="fas fa-search"></i></a>
+    <a href="notifications.html"><i class="fas fa-bell"></i></a>
+    <a href="profile.html"><i class="fas fa-user"></i></a>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+      authDomain: "webnet2.firebaseapp.com",
+      databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
+      projectId: "webnet2",
+      storageBucket: "webnet2.appspot.com",
+      messagingSenderId: "323870835138",
+      appId: "1:323870835138:web:bca571d5620b766651565b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // DOM Elements
+    const loaderWrap = document.getElementById("loaderWrap");
+    const content = document.getElementById("content");
+    const profileName = document.getElementById("profileName");
+    const profileEmail = document.getElementById("profileEmail");
+    const displayNameInput = document.getElementById("displayName");
+    const usernameInput = document.getElementById("username");
+    const bioInput = document.getElementById("bio");
+    const saveProfileBtn = document.getElementById("saveProfile");
+    const deleteAccountBtn = document.getElementById("deleteAccount");
+    const recoverDataBtn = document.getElementById("recoverData");
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toastMessage");
+
+    // Show toast notification
+    function showToast(message, type = "success") {
+      toastMessage.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.classList.add("show");
+      
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    // Data recovery function
+    async function attemptDataRecovery(user) {
+      showToast("Attempting data recovery...");
+      
+      try {
+        // Check if conversations exist at the root level
+        const conversationsSnapshot = await get(ref(db, 'conversations'));
+        let recoveredCount = 0;
+        
+        if (conversationsSnapshot.exists()) {
+          const allConversations = conversationsSnapshot.val();
+          
+          // Find and restore user's conversations
+          for (const [convoId, convo] of Object.entries(allConversations)) {
+            if (convo.participants && convo.participants[user.uid]) {
+              await update(ref(db, `users/${user.uid}/conversations/${convoId}`), convo);
+              recoveredCount++;
+            }
+          }
+        }
+        
+        showToast(`Recovered ${recoveredCount} conversations`);
+      } catch (error) {
+        console.error("Recovery error:", error);
+        showToast("Recovery failed", "error");
+      }
+    }
+
+    // Load user data
+    function loadUserData(user) {
+      get(ref(db, `users/${user.uid}`))
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            
+            // Populate form fields
+            displayNameInput.value = userData.realName || "";
+            usernameInput.value = userData.username || "";
+            bioInput.value = userData.bio || "";
+            
+            // Update profile header
+            profileName.textContent = userData.realName || "User Name";
+            profileEmail.textContent = userData.email || user.email || "No email";
+            
+            // Hide loader and show content
+            loaderWrap.style.display = "none";
+            content.style.display = "block";
+          } else {
+            // Create initial user data if it doesn't exist - FIXED: Use update instead of set
+            const initialData = {
+              email: user.email,
+              realName: user.displayName || "",
+              username: "",
+              bio: "",
+              createdAt: Date.now()
+            };
+            
+            update(ref(db, `users/${user.uid}`), initialData)
+              .then(() => {
+                loadUserData(user); // Reload data
+              })
+              .catch((error) => {
+                console.error("Error creating user data:", error);
+                showToast("Error creating profile", "error");
+              });
+          }
+        })
+        .catch((error) => {
+          console.error("Error loading user data:", error);
+          showToast("Error loading profile data", "error");
+        });
+    }
+
+    // Save profile changes - FIXED: Using update()
+    saveProfileBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      // Only update the specific fields we want to change
+      const updates = {
+        realName: displayNameInput.value.trim(),
+        username: usernameInput.value.trim(),
+        bio: bioInput.value.trim(),
+        updatedAt: Date.now()
+      };
+      
+      // Disable button during save
+      saveProfileBtn.disabled = true;
+      saveProfileBtn.textContent = "Saving...";
+      
+      // Use update() instead of set() to only modify specific fields
+      update(ref(db, `users/${user.uid}`), updates)
+        .then(() => {
+          showToast("Profile updated successfully!");
+          profileName.textContent = updates.realName || "User Name";
+        })
+        .catch((error) => {
+          console.error("Error saving profile:", error);
+          showToast("Error saving profile", "error");
+        })
+        .finally(() => {
+          saveProfileBtn.disabled = false;
+          saveProfileBtn.textContent = "Save Changes";
+        });
+    });
+
+    // Delete account
+    deleteAccountBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+        return;
+      }
+      
+      // Double confirmation for safety
+      if (!confirm("This will permanently delete all your data. Are you absolutely sure?")) {
+        return;
+      }
+      
+      deleteAccountBtn.disabled = true;
+      deleteAccountBtn.textContent = "Deleting...";
+      
+      // Delete user data from database first
+      remove(ref(db, `users/${user.uid}`))
+        .then(() => {
+          // Then delete the auth account
+          return deleteUser(user);
+        })
+        .then(() => {
+          showToast("Account deleted successfully");
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1500);
+        })
+        .catch((error) => {
+          console.error("Error deleting account:", error);
+          showToast("Error deleting account", "error");
+          deleteAccountBtn.disabled = false;
+          deleteAccountBtn.textContent = "Delete Account";
+        });
+    });
+
+    // Data recovery button
+    recoverDataBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      attemptDataRecovery(user);
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      
+      loadUserData(user);
+    });
+
+    // Hide loader after 3 seconds as a fallback
+    setTimeout(() => {
+      if (loaderWrap.style.display !== "none") {
+        loaderWrap.style.display = "none";
+        content.style.display = "block";
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

@@ -6,16 +6,20 @@
   <title>News - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      /**background: #121212;**/
-      color: #eee;
-      background: pink;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-image: url('https://i.ibb.co/LX6ypQ3N/3d-GIF.gif');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: pink; /* REPLACES the problematic 'background: pink' */
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
     header {
       padding: 15px;
       font-size: 20px;
@@ -30,7 +34,9 @@
       padding: 15px;
     }
     .post {
-      background: #1e1e1e;
+      color: black;
+      /* background: #1e1e1e; */
+      background: whitesmoke;
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 15px;
@@ -72,14 +78,16 @@
     }
   a{
     text-decoration: none;
-    color: white;
+    color: black;
   }
   </style>
 </head>
 <body>
 
-  <header>WebNet News</header>
-    <img src="icons/dark1.png"  class="profile-pic">
+  <header><strong><img src="icons/dark1.png"  class="profile-pic">PATCH NOTES</strong></header>
+   
+ 
+  
   <main id="feed">
   <div class="post">
     <h3>WebNet v1.2 Released</h3>
@@ -132,7 +140,7 @@
   </main>
 
   <nav>
-    <a href="home.html"><i class="fas fa-home"></i></a>
+    <a href="index.html"><i class="fas fa-home"></i></a>
     <!-- <a href="search.html"><i class="fas fa-search"></i></a>
     <a href="profile.html"><i class="fas fa-user"></i></a> -->
   </nav>

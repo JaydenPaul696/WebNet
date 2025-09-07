@@ -7,7 +7,31 @@
   <title>WebNet - Profile</title>
   <style>
     body { background: #121212; color: white; font-family: Arial, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-    header { padding: 15px; background: #111; color: white; font-size: 1.3em; display: flex; align-items: center; gap: 10px; }
+    
+    header { 
+      padding: 15px; 
+      background: #111; 
+      color: white; 
+      font-size: 1.3em; 
+      display: flex; 
+      justify-content: space-between;
+      align-items: center; 
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .settings-btn {
+      background: #0a84ff;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s;
+    }
+    .settings-btn:hover { background: #0066cc; }
+
     nav { position: fixed; bottom: 0; width: 100%; background: #121212; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; border-top: 1px solid #333; z-index: 10; }
     nav a { color: white; font-size: 1.4em; text-decoration: none; }
     nav a:hover { color: #0a84ff; }
@@ -16,25 +40,45 @@
     .avatar-placeholder { font-size: 80px; margin-bottom: 10px; }
     .user-info h2 { margin: 0; font-size: 1.6em; }
     .user-info p { font-size: 1em; color: #ccc; }
-    .logout-btn { margin: 20px auto 10px; display: block; padding: 10px 20px; background: #3247e7; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; max-width: 200px; transition: background 0.3s ease; }
+    .bio { margin-top: 10px; font-style: italic; color: #bbb; }
+
+    .logout-btn {
+  margin: 20px auto 10px;
+  display: block;
+  padding: 10px 20px;
+  background: #3247e7;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 1em;
+  cursor: pointer;
+  max-width: 200px;
+  transition: background 0.3s ease;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
     .logout-btn:hover { background: #7684f1; }
+
     .follow-btn { padding: 8px 20px; font-size: 1em; border: none; border-radius: 6px; cursor: pointer; background-color: #3247e7; color: white; transition: 0.3s; margin-top: 15px; max-width: 200px; }
     .follow-btn.following { background-color: #d3d3d3; color: #333; }
 
-    .posts-grid { margin: 0 20px 80px; display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; }
-    .post-box { background: #1e1e1e; color: #eee; padding: 10px; border-radius: 6px; word-wrap: break-word; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.95em; }
-
     .plus-btn { position: fixed; bottom: 70px; right: 20px; background: #3f2eff; color: white; width: 55px; height: 55px; border-radius: 50%; font-size: 1.6em; display: none; justify-content: center; align-items: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); cursor: pointer; z-index: 15; text-decoration: none; }
     .plus-btn:hover { background: #e01a4f; }
+  
   </style>
 </head>
 <body>
+  
 
 <header id="profileHeader">
-  <span id="backBtn" style="display:none; cursor:pointer;">
-    <i class="fas fa-arrow-left"></i>
-  </span>
-  <span id="headerTitle">My Profile</span>
+  <div class="header-left">
+    <span id="backBtn" style="display:none; cursor:pointer;">
+      <i class="fas fa-arrow-left"></i>
+    </span>
+    <span id="headerTitle">My Profile</span>
+  </div>
+  <a href="settings.html" class="settings-btn">
+    <i class="fas fa-cog"></i> Settings
+  </a>
 </header>
 
 <div class="profile-container" id="profileContainer">
@@ -43,6 +87,7 @@
     <h2 id="realName">Loading...</h2>
     <h3><span id="username"></span></h3>
     <p id="userEmail">Loading...</p>
+    <p id="userBio" class="bio">No bio set yet.</p>
     <div style="margin-top:10px; display:flex; justify-content:center; gap:20px;">
       <span id="followersCount">•</span>Followers
       <span id="followingCount">•</span>Following
@@ -51,10 +96,15 @@
   <button id="followBtn" class="follow-btn" style="display:none;">Follow</button>
 </div>
 
-<button onclick="logout()" class="logout-btn" id="logoutBtn">Logout</button>
-
-<div id="postsContainer" class="posts-grid"></div>
-
+<button onclick="logout()" class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"> Sign out</i></button>
+    <div class="auth-buttons">
+      <button id="signInBtn" class="auth-btn" style="display: none;">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+      <button id="signOutBtn" class="auth-btn signout" style="display: none;">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </div>
 <nav>
   <a href="home.html"><i class="fas fa-comment"></i></a>
   <a href="search.html"><i class="fas fa-search"></i></a>
@@ -89,6 +139,7 @@
   const realNameElem = document.getElementById("realName");
   const usernameElem = document.getElementById("username");
   const emailElem = document.getElementById("userEmail");
+  const bioElem = document.getElementById("userBio");
   const followersCountElem = document.getElementById("followersCount");
   const followingCountElem = document.getElementById("followingCount");
   const followBtn = document.getElementById("followBtn");
@@ -96,7 +147,7 @@
   const plusFab = document.getElementById("plusFab");
   const backBtn = document.getElementById("backBtn");
   const headerTitle = document.getElementById("headerTitle");
-  const postsContainer = document.getElementById("postsContainer");
+  const settingsBtn = document.querySelector('.settings-btn');
 
   const params = new URLSearchParams(window.location.search);
   const profileUidParam = params.get("uid");
@@ -107,8 +158,8 @@
     const myUid = user.uid;
     const uidToLoad = profileUidParam || myUid;
 
-    // Back button logic
     if(profileUidParam && profileUidParam !== myUid) {
+      settingsBtn.style.display = "none";
       backBtn.style.display = "inline";
       backBtn.onclick = () => window.history.back();
       headerTitle.textContent = "User Profile";
@@ -116,7 +167,6 @@
       logoutBtn.style.display = "none";
       followBtn.style.display = "inline-block";
 
-      // Follow/unfollow state
       onValue(ref(db, `users/${uidToLoad}/followers/${myUid}`), (snap) => {
         if(snap.exists()) {
           followBtn.textContent = "Following";
@@ -127,49 +177,19 @@
         }
       });
 
-      // FOLLOW/UNFOLLOW BUTTON ACTION WITH NOTIFICATIONS
       followBtn.onclick = async () => {
         const isFollowing = followBtn.classList.contains("following");
-        
         if (isFollowing) {
-          // Unfollow
           await remove(ref(db, `users/${uidToLoad}/followers/${myUid}`));
           await remove(ref(db, `users/${myUid}/following/${uidToLoad}`));
         } else {
-          // Follow
           await set(ref(db, `users/${uidToLoad}/followers/${myUid}`), true);
           await set(ref(db, `users/${myUid}/following/${uidToLoad}`), true);
-          
-          // ✅ Send notification to the user being followed
-          try {
-            // Get current user's display name
-            const currentUserSnap = await get(ref(db, `users/${myUid}`));
-            const currentUserData = currentUserSnap.val();
-            const currentUserName = currentUserData.realName || currentUserData.username || "Someone";
-            
-            // Get target user's data for notification
-            const targetUserSnap = await get(ref(db, `users/${uidToLoad}`));
-            const targetUserData = targetUserSnap.val();
-            
-            // Create notification
-            const notifRef = ref(db, `users/${uidToLoad}/notifications`);
-            const newNotifRef = push(notifRef);
-            await set(newNotifRef, {
-              type: "follow",
-              message: `${currentUserName} started following you.`,
-              read: false,
-              timestamp: Date.now(),
-              time: new Date().toLocaleString(),
-              fromUserId: myUid,
-              fromUserName: currentUserName
-            });
-          } catch (error) {
-            console.error("Error sending follow notification:", error);
-          }
         }
       };
 
     } else {
+      settingsBtn.style.display = "flex";
       backBtn.style.display = "none";
       headerTitle.textContent = "My Profile";
       plusFab.style.display = "flex";
@@ -177,7 +197,6 @@
       followBtn.style.display = "none";
     }
 
-    // Load user info
     try {
       const userSnap = await get(ref(db, `users/${uidToLoad}`));
       if(userSnap.exists()) {
@@ -185,39 +204,16 @@
         realNameElem.textContent = data.realName || "No Name";
         usernameElem.textContent = data.username ? `@${data.username}` : "Username";
         emailElem.textContent = data.email || "";
+        bioElem.textContent = data.bio || "No bio set yet.";
       }
     } catch(e){ console.error("Error loading profile:", e); }
 
-    // Live followers & following count
     onValue(ref(db, `users/${uidToLoad}/followers`), snap => {
       followersCountElem.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
     });
     onValue(ref(db, `users/${uidToLoad}/following`), snap => {
       followingCountElem.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
     });
-
-    // Load posts
-    try {
-      const postsSnap = await get(ref(db, `users/${uidToLoad}/posts`));
-      postsContainer.innerHTML = "";
-      if(postsSnap.exists()) {
-        const postsData = postsSnap.val();
-        const sortedPosts = Object.values(postsData).sort((a,b) => b.timestamp - a.timestamp);
-        sortedPosts.forEach(post => {
-          if(post.text && post.text.trim() !== "") {
-            const postBox = document.createElement("div");
-            postBox.classList.add("post-box");
-            postBox.textContent = post.text;
-            postsContainer.appendChild(postBox);
-          }
-        });
-      } else {
-        postsContainer.innerHTML = "<p style='color:#ccc; text-align:center;'>No posts yet</p>";
-      }
-    } catch(e){
-      console.error("Error loading posts:", e);
-      postsContainer.innerHTML = "<p style='color:#ccc; text-align:center;'>Error loading posts</p>";
-    }
   });
 
   window.logout = async function() {
