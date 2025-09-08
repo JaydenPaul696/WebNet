@@ -43,14 +43,14 @@
 
     /* Loader */
     #loaderOverlay {
-      position: fixed;
+      position: absolute;
       inset: 0;
       background: #121212;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 20;
+      z-index: 5; /* stays under header/nav */
     }
     .loader {
       border: 5px solid #333;
@@ -64,10 +64,10 @@
 
     /* Profile content */
     .profile-container {
+      position: relative;
       flex: 1;
       padding: 20px;
       text-align: center;
-      display: none;
     }
     .avatar-placeholder {
       font-size: 80px;
@@ -146,7 +146,27 @@
       color: #0a84ff;
       font-size: 0.9em;
     }
-  a{
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      background: #0a84ff;
+      color: #fff;
+      font-size: 24px;
+      padding: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      cursor: pointer;
+      z-index: 15;
+    }
+    .fab:hover { background: #006ad4; }
+  a {
+    text-decoration: none;
     color: white;
   }
   </style>
@@ -161,12 +181,12 @@
   <button class="settings-btn" id="settingsBtn"><a href="settings.html"><i class="fas fa-cog"></i></a></button>
 </header>
 
-<div id="loaderOverlay">
-  <div class="loader"></div>
-  <p style="margin-top:15px;color:#bbb;">Loading profile...</p>
-</div>
-
 <div class="profile-container" id="profileContainer">
+  <div id="loaderOverlay">
+    <div class="loader"></div>
+    <p style="margin-top:15px;color:#bbb;">Loading profile...</p>
+  </div>
+
   <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
   <div class="user-info">
     <h2 id="realName">Loading...</h2>
@@ -181,6 +201,9 @@
   <button id="followBtn" class="follow-btn" style="display:none;">Follow</button>
   <button id="logoutBtn" class="logout-btn" style="display:none;">Sign out</button>
 </div>
+
+<!-- FAB to create new post -->
+<a href="post.html" class="fab"><i class="fas fa-earth"></i></a>
 
 <nav>
   <a href="home.html"><i class="fas fa-comment"></i></a>
@@ -209,8 +232,6 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 const loaderOverlay = document.getElementById("loaderOverlay");
-const profileContainer = document.getElementById("profileContainer");
-
 const realNameElem = document.getElementById("realName");
 const usernameElem = document.getElementById("username");
 const emailElem = document.getElementById("userEmail");
@@ -280,6 +301,12 @@ onAuthStateChanged(auth, async (user) => {
     headerTitle.textContent = "My Profile";
     logoutBtn.style.display = "inline-block";
     followBtn.style.display = "none";
+
+    // 🔹 Fix sign out button
+    logoutBtn.onclick = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
   }
 
   try {
@@ -302,7 +329,6 @@ onAuthStateChanged(auth, async (user) => {
     console.error("Error loading profile:", e);
   } finally {
     loaderOverlay.style.display = "none";
-    profileContainer.style.display = "block";
   }
 
   onValue(ref(db, `users/${uidToLoad}/followers`), snap => {
@@ -312,11 +338,6 @@ onAuthStateChanged(auth, async (user) => {
     followingCountElem.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
   });
 });
-
-window.logout = async function () {
-  await signOut(auth);
-  window.location.href = "index.html";
-};
 </script>
 
 </body>
