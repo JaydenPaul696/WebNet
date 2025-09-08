@@ -9,14 +9,13 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: Arial, sans-serif;
       background: #121212;
       color: #eee;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
-
     header {
       position: fixed;
       top: 0;
@@ -28,389 +27,433 @@
       border-bottom: 1px solid #333;
       background: #181818;
       z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-    
-    .auth-buttons {
-      display: flex;
-      gap: 10px;
-    }
-    
-    .auth-btn {
-      background: #0a84ff;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .auth-btn.signout {
-      background: #444;
-    }
-
-    main {
-      padding: 80px 12px 70px;
-      flex: 1;
-    }
-
-    /* Loader */
+    main { padding: 80px 12px 70px; flex: 1; }
     .loader-wrap {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
       height: 100vh;
     }
     .loader {
       border: 6px solid #2a2a2a;
       border-top: 6px solid #0a84ff;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 60px; height: 60px;
       animation: spin 1s linear infinite;
       margin-bottom: 20px;
     }
-    @keyframes spin { 
-      0% { transform: rotate(0deg);} 
-      100% { transform: rotate(360deg);} 
-    }
-
-    /* Empty state */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      text-align: center;
-      color: #888;
-    }
-    
-    .empty-state i {
-      font-size: 60px;
-      margin-bottom: 15px;
-      color: #444;
-    }
-    
-    .empty-state p {
-      font-size: 16px;
-      max-width: 300px;
-      line-height: 1.5;
-    }
-
-    /* Grid of posts */
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
     #postList {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 12px;
     }
     .card {
-      background: #1e1e1e;
-      border-radius: 8px;
+      background: #181818;
+      border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
       position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
+      padding: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      transition: transform 0.2s, border 0.2s, box-shadow 0.2s;
     }
-    
     .card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      border: 1px solid #0a84ff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.8);
     }
-    
+    .card:active {
+      transform: scale(0.97);
+      border: 1px solid #0a84ff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+    }
     .card img {
       width: 100%;
-      height: 120px;
+      height: 140px;
       object-fit: cover;
       display: block;
-    }
-    .like-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px;
-      font-size: 14px;
-      color: #ccc;
-    }
-    .like-btn {
-      cursor: pointer;
-      font-size: 16px;
-      color: #888;
-      transition: color 0.2s;
-    }
-    .like-btn.liked {
-      color: #e0245e;
-    }
-    
-    .like-btn:hover {
-      transform: scale(1.1);
+      border-radius: 8px;
     }
 
-    /* View Modal */
+    .like-bar {
+      display: flex; align-items: center;
+      gap: 6px; padding: 6px;
+      font-size: 14px; color: #ccc;
+    }
+    .like-btn { cursor: pointer; font-size: 16px; color: #888; }
+    .like-btn.liked { color: #e0245e; }
+
+    /* VIEW MODAL */
     .view-modal {
-      position: fixed;
-      top: 0; left: 0; right:0; bottom:0;
-      background: rgba(0,0,0,0.92);
-      display: none;
-      align-items: center;
-      justify-content: center;
+      position: fixed; top: 0; left: 0; right:0; bottom:0;
+      background: rgba(0,0,0,0.85);
+      display: none; align-items: center; justify-content: center;
       z-index: 2000;
-      padding: 20px;
+      animation: fadeIn 0.3s ease;
     }
     .view-modal-content {
-      max-width: 90%;
-      max-height: 90%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 15px;
-      position: relative;
+      max-width: 90%; max-height: 90%;
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
+      gap: 10px; position: relative;
+      background: #181818;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.8);
+      animation: modalPop 0.3s ease;
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.9); }
+      to   { opacity: 1; transform: scale(1); }
     }
     .view-modal-content img {
-      max-width: 100%;
-      max-height: 70vh;
-      border-radius: 8px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-    }
-    .view-caption {
-      font-size: 16px;
-      color: #ddd;
-      background: rgba(30,30,30,0.8);
-      padding: 12px 15px;
-      border-radius: 8px;
-      max-width: 500px;
-    }
-    .close-btn {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 28px;
-      color: #fff;
-      cursor: pointer;
-      background: rgba(0,0,0,0.5);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .close-btn:hover {
-      background: rgba(0,0,0,0.7);
+      max-width: 100%; max-height: 70vh;
+      border-radius: 8px; transition: opacity 0.3s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
     }
 
-    /* Upload Modal */
-    .upload-modal {
-      position: fixed;
-      top: 0; left: 0; right:0; bottom:0;
-      background: rgba(0,0,0,0.92);
-      display: none;
+    /* Footer section */
+    .view-footer {
+      width: 100%;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 10px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .view-caption { font-size: 14px; color: #ddd; margin-bottom: 6px; }
+    .view-user { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 4px; 
+      font-size: 14px; 
+      font-weight: bold; 
+      color: #0a84ff; 
+      margin-bottom: 4px; 
+      text-decoration: none; 
+    }
+    .view-user:hover { text-decoration: underline; }
+    .view-time { font-size: 12px; color: #777; }
+
+    /* Comments section inside modal */
+    .comments-section {
+      margin-top: 12px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #commentList {
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+    #commentList p {
+      font-size: 13px;
+      color: #ccc;
+      margin: 4px 0;
+      padding: 6px 8px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      word-wrap: break-word;
+    }
+    .comment-user {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
+      gap: 4px;
+      font-weight: bold;
+      color: #0a84ff;
+    }
+    .comment-box {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .comment-box input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 13px;
+    }
+    .comment-box button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #0a84ff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.3s;
+    }
+    .comment-box button:hover {
+      background: #006edc;
+    }
+
+    /* Desktop layout: side-by-side */
+    @media (min-width: 768px) {
+      .view-modal-content {
+        flex-direction: row;
+        align-items: flex-start;
+        text-align: left;
+        gap: 20px;
+      }
+      .view-modal-content img {
+        max-width: 60%;
+        max-height: 80vh;
+      }
+      .view-footer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        background: #202020;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+        margin-top: 0;
+        border-top: none;
+      }
+      #commentList {
+        max-height: 220px;
+      }
+    }
+
+    .close-btn {
+      position: absolute; top: 15px; right: 20px;
+      font-size: 28px; color: #fff; cursor: pointer;
+    }
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 36px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      z-index: 3000;
+    }
+    .nav-arrow.left { left: 30px; }
+    .nav-arrow.right { right: 30px; }
+
+    /* SPINNER inside modal */
+    #modalSpinner {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    /* UPLOAD MODAL */
+    .upload-modal {
+      position: fixed; top: 0; left: 0; right:0; bottom:0;
+      background: rgba(0,0,0,0.85);
+      display: none; align-items: center; justify-content: center;
       z-index: 2100;
+      animation: fadeIn 0.3s ease;
     }
     .upload-content {
       background: #1e1e1e;
-      padding: 25px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
+      padding: 20px; border-radius: 12px;
+      width: 90%; max-width: 420px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+      transform: translateY(20px);
+      animation: slideUp 0.3s ease forwards;
     }
-    
-    .upload-content h3 {
-      margin-top: 0;
-      color: #0a84ff;
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    
-    .upload-content input, .upload-content textarea {
+    /* Hide file input, show custom label */
+    #imageInput { display: none; }
+    .custom-file-label {
+      display: inline-block;
+      padding: 10px 18px;
+      background: #0a84ff;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-bottom: 12px;
+    }
+    .custom-file-label:hover { background: #006edc; }
+
+    #previewImg {
+      max-width: 100%; max-height: 200px;
+      object-fit: contain;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: none;
+      border: 1px solid #333;
+    }
+
+    .upload-content textarea {
       width: 100%;
       margin: 10px 0;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      outline: none;
-      background: #252525;
-      color: #eee;
-      font-family: inherit;
-    }
-    
-    .upload-content textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    
-    .upload-content button {
-      padding: 12px 20px;
+      padding: 10px;
+      border-radius: 6px;
       border: none;
-      border-radius: 8px;
-      background: #0a84ff;
+      outline: none;
+      resize: none;
+      background: #2a2a2a;
       color: #fff;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 10px;
-      transition: background 0.2s;
-    }
-    
-    .upload-content button:hover {
-      background: #0066cc;
-    }
-    
-    .upload-content button:disabled {
-      background: #444;
-      cursor: not-allowed;
     }
 
-    /* Floating Plus Button */
+    .upload-btn {
+      padding: 10px 15px;
+      border: none; border-radius: 6px;
+      background: #0a84ff; color: #fff;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s;
+    }
+    .upload-btn:hover { background: #006edc; }
+    .upload-btn:disabled { background: #555; cursor: not-allowed; }
+
+    .cancel-btn {
+      margin-left: 8px;
+      padding: 10px 15px;
+      border: none; border-radius: 6px;
+      background: #444; color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .cancel-btn:hover { background: #666; }
+
+
+    /* FAB breathing + */
     .fab {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #0a84ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      color: #fff;
-      cursor: pointer;
-      z-index: 1500;
-      box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4);
-      transition: all 0.3s;
+      position: fixed; bottom: 80px; right: 20px;
+      width: 55px; height: 55px; border-radius: 50%;
+      background: #0a84ff; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 28px; font-weight: bold;
+      color: #fff; cursor: pointer;
+      z-index: 1500; box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      animation: breathe 2s infinite;
+      transition: transform 0.3s ease;
     }
-    
-    .fab:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(10, 132, 255, 0.6);
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
 
-    /* Bottom Nav */
+    /* Close button breathing X */
+    .close-btn {
+      position: absolute; top: 15px; right: 20px;
+      font-size: 28px; color: #fff; cursor: pointer;
+      animation: breathe 2s infinite;
+      transition: transform 0.3s ease;
+    }
+
+    /* Modal open pop-in */
+    .view-modal-content,
+    .upload-content {
+      animation: modalPop 0.3s ease, fadeInUp 0.4s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+
     nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      border-top: 1px solid #333;
-      background: #181818;
-      padding: 12px 0;
-      z-index: 1000;
+      position: fixed; bottom: 0; width: 100%;
+      display: flex; justify-content: space-around;
+      border-top: 1px solid #333; background: #181818;
+      padding: 10px 0; z-index: 1000;
+    }
+    nav a { color: #eee; font-size: 20px; text-decoration: none; }
+    nav a:hover { color: #0a84ff; }
+
+    /* Like heart animation */
+    .heart-anim {
+      position: absolute; font-size: 60px; color: #e0245e;
+      opacity: 0.8; animation: fadeUp 1s forwards;
+      pointer-events: none;
+    }
+    @keyframes fadeUp {
+      0% { transform: scale(0.5); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 0; top: -50px; }
     }
     
-    nav a { 
-      color: #eee; 
-      font-size: 20px; 
-      text-decoration: none; 
-      padding: 5px 15px;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-    
-    nav a:hover, nav a.active { 
-      color: #0a84ff; 
-      background: #1e1e1e;
-    }
-    
-    /* Toast notifications */
-    .toast {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 3000;
-      opacity: 0;
-      transition: opacity 0.3s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    
-    .toast.show {
-      opacity: 1;
-    }
-    
-    /* Responsive adjustments */
-    @media (min-width: 768px) {
-      #postList {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 16px;
-      }
-      
-      .card img {
-        height: 160px;
-      }
+    /* Verification badge */
+    .verified-icon {
+      color: #0a84ff;
+      font-size: 0.9em;
     }
   </style>
+
 </head>
 <body>
-  <header>
-    <div></div> <!-- Empty div for spacing -->
-    <div class="header-title">WebNet Posts</div>
-    <div class="auth-buttons">
-      <button id="signInBtn" class="auth-btn" style="display: none;">
-        <i class="fas fa-sign-in-alt"></i> Sign In
-      </button>
-      <button id="signOutBtn" class="auth-btn signout" style="display: none;">
-        <i class="fas fa-sign-out-alt"></i> Sign Out
-      </button>
-    </div>
-  </header>
-
-  <!-- Loader -->
+  <header>WebNet Posts</header>
   <div id="loaderWrap" class="loader-wrap">
-    <div class="loader"></div>
-    <p>Loading posts...</p>
+    <div class="loader"></div><p>Loading posts...</p>
   </div>
-
   <main id="content" style="display:none;">
     <div id="postList"></div>
-    <div id="emptyState" class="empty-state" style="display: none;">
-      <i class="fas fa-camera"></i>
-      <h3>No Posts Yet</h3>
-      <p>Be the first to share a post!</p>
-    </div>
   </main>
+<!-- Floating Action Button -->
+<div class="fab" id="openUpload">
+  <span class="fab-icon">+</span>
+</div>
 
-  <!-- Toast notification -->
-  <div id="toast" class="toast"></div>
-
-  <!-- Floating + Button -->
-  <div class="fab" id="openUpload"><i class="fas fa-plus"></i></div>
 
   <!-- Upload Modal -->
   <div class="upload-modal" id="uploadModal">
     <div class="upload-content">
-      <h3>Create New Post</h3>
+      <h3>New Post</h3>
+      <label for="imageInput" class="custom-file-label">Choose Image</label>
       <input type="file" id="imageInput" accept="image/*"/>
+
+      <img id="previewImg" src="" alt="Preview"/>
       <textarea id="captionInput" rows="3" placeholder="Write a caption..."></textarea>
-      <img id="imagePreview" style="max-width: 100%; margin-top: 10px; border-radius: 5px; display: none;">
-      <button id="uploadBtn">Upload Post</button>
-      <button id="cancelUpload" style="background: #444; margin-left: 10px;">Cancel</button>
+      <button id="uploadBtn" class="upload-btn">Upload</button>
+      <button id="cancelBtn" class="cancel-btn">Cancel</button>
     </div>
   </div>
 
-  <!-- View Modal -->
-  <div class="view-modal" id="viewModal">
-    <span class="close-btn" id="closeView">&times;</span>
-    <div class="view-modal-content">
-      <img id="modalImg" src="" alt="">
+<!-- View Modal -->
+<div class="view-modal" id="viewModal">
+  <span class="close-btn" id="closeView">&times;</span>
+
+  <!-- Navigation arrows -->
+  <span class="nav-arrow left" id="prevArrow">&#10094;</span>
+  <span class="nav-arrow right" id="nextArrow">&#10095;</span>
+
+  <div class="view-modal-content">
+    <div id="modalSpinner"></div>
+    <img id="modalImg" src="" alt="">
+
+    <div class="view-footer">
       <p class="view-caption" id="modalCaption"></p>
+      <a href="#" class="view-user" id="modalUser"></a>
+      <p class="view-time" id="modalTime"></p>
+
+      <!-- 🔥 Comment Section -->
+      <div class="comments-section">
+        <div id="commentList"></div>
+        <div class="comment-box">
+          <input type="text" id="commentInput" placeholder="Add a comment..." />
+          <button id="sendComment">Post</button>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+
+
 
   <nav>
     <a href="home.html"><i class="fas fa-comment"></i></a>
@@ -420,12 +463,8 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { 
-    getDatabase, ref, push, set, remove, onValue 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-  import { 
-    getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { getDatabase, ref, push, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -436,292 +475,383 @@
     messagingSenderId: "323870835138",
     appId: "1:323870835138:web:bca571d5620b766651565b"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
 
-  // DOM Elements
   const loaderWrap = document.getElementById("loaderWrap");
   const content = document.getElementById("content");
   const postList = document.getElementById("postList");
-  const emptyState = document.getElementById("emptyState");
-  const signInBtn = document.getElementById("signInBtn");
-  const signOutBtn = document.getElementById("signOutBtn");
-  const toast = document.getElementById("toast");
-
   const viewModal = document.getElementById("viewModal");
   const closeView = document.getElementById("closeView");
   const modalImg = document.getElementById("modalImg");
   const modalCaption = document.getElementById("modalCaption");
-
+  const modalUser = document.getElementById("modalUser");
+  const modalTime = document.getElementById("modalTime");
+  const prevArrow = document.getElementById("prevArrow");
+  const nextArrow = document.getElementById("nextArrow");
   const uploadModal = document.getElementById("uploadModal");
   const openUpload = document.getElementById("openUpload");
   const uploadBtn = document.getElementById("uploadBtn");
-  const cancelUpload = document.getElementById("cancelUpload");
+  const cancelBtn = document.getElementById("cancelBtn");
   const imageInput = document.getElementById("imageInput");
   const captionInput = document.getElementById("captionInput");
-  const imagePreview = document.getElementById("imagePreview");
+  const previewImg = document.getElementById("previewImg");
+  const modalSpinner = document.getElementById("modalSpinner");
+
+  // comment elements
+  const commentList = document.getElementById("commentList");
+  const commentInput = document.getElementById("commentInput");
+  const sendComment = document.getElementById("sendComment");
 
   let currentUser = null;
+  let posts = [];
+  let currentIndex = 0;
+  let commentsListener = null;
+  let userVerificationCache = {};
 
-  // Show toast notification
-  function showToast(message, duration = 3000) {
-    toast.textContent = message;
-    toast.classList.add('show');
+  // Hide loader after 3 seconds
+  setTimeout(() => { 
+    loaderWrap.style.display = "none"; 
+    content.style.display = "block"; 
+  }, 3000);
+
+  // Check if a user is verified
+  async function isUserVerified(uid) {
+    if (userVerificationCache[uid] !== undefined) {
+      return userVerificationCache[uid];
+    }
     
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, duration);
+    try {
+      const userSnap = await get(ref(db, `users/${uid}`));
+      if (userSnap.exists()) {
+        const userData = userSnap.val();
+        const verified = userData.verified || false;
+        userVerificationCache[uid] = verified;
+        return verified;
+      }
+    } catch (error) {
+      console.error("Error checking verification status:", error);
+    }
+    
+    return false;
   }
 
-  // Hide loader after 2 seconds
-  setTimeout(() => {
-    loaderWrap.style.display = "none";
-    content.style.display = "block";
-  }, 2000);
+  // Create a user element with verification badge if applicable
+  async function createUserElement(username, uid, isComment = false) {
+    const element = document.createElement(isComment ? 'span' : 'a');
+    element.className = isComment ? 'comment-user' : 'view-user';
+    
+    // Set text and href
+    element.textContent = username;
+    if (!isComment) {
+      element.href = `profile.html?uid=${uid}`;
+    }
+    
+    // Check if user is verified and add badge if they are
+    const verified = await isUserVerified(uid);
+    if (verified) {
+      const checkIcon = document.createElement("i");
+      checkIcon.className = "fa-solid fa-circle-check verified-icon";
+      element.appendChild(checkIcon);
+    }
+    
+    return element;
+  }
 
-  // Show preview when file chosen
   imageInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        imagePreview.src = ev.target.result;
-        imagePreview.style.display = "block";
+      reader.onload = (ev) => { 
+        previewImg.src = ev.target.result; 
+        previewImg.style.display = "block"; 
       };
       reader.readAsDataURL(file);
     } else {
-      imagePreview.src = "";
-      imagePreview.style.display = "none";
+      previewImg.src = ""; 
+      previewImg.style.display = "none";
     }
   });
 
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  }
+
   function loadPosts() {
     onValue(ref(db, "posts"), (snapshot) => {
-      if (!snapshot.exists()) {
-        postList.innerHTML = "";
-        emptyState.style.display = "flex";
-        return;
-      }
-      
-      emptyState.style.display = "none";
       postList.innerHTML = "";
+      posts = [];
       
-      // Convert to array and sort by timestamp if available
-      const posts = [];
       snapshot.forEach((child) => {
-        posts.push({
-          id: child.key,
-          ...child.val()
-        });
+        const data = child.val();
+        const id = child.key;
+        posts.push({ id, ...data });
       });
       
-      // Sort by timestamp if available, otherwise keep original order
-      posts.sort((a, b) => {
-        const timeA = a.timestamp || 0;
-        const timeB = b.timestamp || 0;
-        return timeB - timeA; // Newest first
-      });
-
-      let visiblePostsCount = 0;
-
+      // Sort posts by timestamp (newest first)
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+      
+      // Render posts
       posts.forEach((post) => {
-        // Skip hidden posts - FIXED!
-        if (post.hidden) {
-          return; // This will skip processing hidden posts
-        }
-        
-        visiblePostsCount++;
-        
-        const { image = "", caption = "", likes = {} } = post;
-        const id = post.id;
+        const { image = "", caption = "", likes = {}, user = {}, timestamp = Date.now() } = post;
         const liked = currentUser && likes[currentUser.uid];
         const likeCount = Object.keys(likes).length;
 
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          ${image ? `<img src="${image}" alt="Post image" loading="lazy" />` : ""}
+          ${image ? `<img src="${image}" alt="Post image" />` : ""}
           <div class="like-bar">
-            <i class="fas fa-heart like-btn ${liked ? "liked" : ""}" data-id="${id}"></i>
+            <i class="fas fa-heart like-btn ${liked ? "liked" : ""}" data-id="${post.id}"></i>
             <span class="like-count">${likeCount}</span>
           </div>
         `;
 
-        card.querySelector("img").addEventListener("click", () => {
-          modalImg.src = image;
-          modalCaption.textContent = caption || "";
-          viewModal.style.display = "flex";
+        let lastTap = 0;
+        card.querySelector("img").addEventListener("click", (e) => {
+          const now = Date.now();
+          if (now - lastTap < 300) {
+            if (!currentUser) return;
+            const postRef = ref(db, `posts/${post.id}/likes/${currentUser.uid}`);
+            if (liked) { remove(postRef); } else { set(postRef, true); }
+            const heart = document.createElement("i");
+            heart.className = "fas fa-heart heart-anim";
+            heart.style.left = e.offsetX + "px";
+            heart.style.top = e.offsetY + "px";
+            card.appendChild(heart);
+            setTimeout(() => heart.remove(), 1000);
+          } else {
+            currentIndex = posts.findIndex(p => p.id === post.id);
+            showModal(currentIndex);
+          }
+          lastTap = now;
         });
 
         card.querySelector(".like-btn").addEventListener("click", (e) => {
           e.stopPropagation();
-          if (!currentUser) {
-            showToast("Please sign in to like posts");
-            return;
-          }
-          const postRef = ref(db, `posts/${id}/likes/${currentUser.uid}`);
-          if (liked) {
-            remove(postRef);
-            showToast("Like removed");
-          } else {
-            set(postRef, true);
-            showToast("Post liked");
-          }
+          if (!currentUser) return;
+          const postRef = ref(db, `posts/${post.id}/likes/${currentUser.uid}`);
+          if (liked) { remove(postRef); } else { set(postRef, true); }
         });
 
         postList.appendChild(card);
       });
-      
-      // Show empty state if no visible posts
-      if (visiblePostsCount === 0) {
-        emptyState.style.display = "flex";
-      }
     });
   }
 
-  // Upload Modal toggle
-  openUpload.addEventListener("click", () => {
-    if (!currentUser) {
-      showToast("Please sign in to upload posts");
-      return;
-    }
-    uploadModal.style.display = "flex";
-  });
-  
-  uploadModal.addEventListener("click", (e) => {
-    if (e.target === uploadModal) {
-      resetUploadForm();
-      uploadModal.style.display = "none";
-    }
-  });
-  
-  cancelUpload.addEventListener("click", () => {
-    resetUploadForm();
-    uploadModal.style.display = "none";
-  });
-  
-  function resetUploadForm() {
-    imageInput.value = "";
-    captionInput.value = "";
-    imagePreview.src = "";
-    imagePreview.style.display = "none";
+  async function loadComments(postId) {
+    if (commentsListener) commentsListener(); // detach old listener
+    commentList.innerHTML = "";
+
+    const commentsRef = ref(db, `comments/${postId}`);
+    commentsListener = onValue(commentsRef, async (snapshot) => {
+      commentList.innerHTML = "";
+      
+      // Process comments in order
+      const comments = [];
+      snapshot.forEach((child) => {
+        comments.push({ id: child.key, ...child.val() });
+      });
+      
+      // Sort comments by timestamp (oldest first)
+      comments.sort((a, b) => a.timestamp - b.timestamp);
+      
+      // Create comment elements
+      for (const comment of comments) {
+        const { text, user, userId, timestamp } = comment;
+        const p = document.createElement("p");
+        
+        // Create user element with verification badge
+        const userElement = await createUserElement(user || "Guest", userId || "guest", true);
+        
+        const commentText = document.createElement("span");
+        commentText.textContent = `: ${text}`;
+        
+        const timeSpan = document.createElement("span");
+        timeSpan.innerHTML = `<br><span style="font-size:11px;color:#777">${formatTime(timestamp)}</span>`;
+        
+        p.appendChild(userElement);
+        p.appendChild(commentText);
+        p.appendChild(timeSpan);
+        
+        commentList.appendChild(p);
+      }
+      
+      commentList.scrollTop = commentList.scrollHeight;
+    });
   }
 
-  // Upload handler with ImgBB
+  async function showModal(index) {
+    if (posts.length === 0) return;
+    if (index < 0) index = posts.length - 1;
+    if (index >= posts.length) index = 0;
+
+    const { id, image, caption, user = {}, userId, timestamp } = posts[index];
+
+    modalSpinner.style.display = "block";
+    modalImg.style.opacity = "0";
+
+    const tempImg = new Image();
+    tempImg.onload = async () => {
+      modalImg.src = image;
+      modalImg.style.opacity = "1";
+      modalSpinner.style.display = "none";
+      modalCaption.textContent = caption || "";
+      modalTime.textContent = formatTime(timestamp);
+      
+      // Clear previous user content
+      modalUser.innerHTML = "Posted by: ";
+      
+      // Create and append user element with verification badge
+      const username = user.name || "Guest";
+      const userElement = await createUserElement(username, userId || "guest");
+      modalUser.appendChild(userElement);
+      
+      currentIndex = index;
+      viewModal.style.display = "flex";
+      loadComments(id); // 🔥 load comments for this image
+    };
+    tempImg.onerror = () => {
+      modalSpinner.style.display = "none";
+      modalCaption.textContent = "⚠️ Failed to load image";
+    };
+    tempImg.src = image;
+  }
+
+  prevArrow.addEventListener("click", () => showModal(currentIndex - 1));
+  nextArrow.addEventListener("click", () => showModal(currentIndex + 1));
+
+  // ✅ Post a new comment
+  sendComment.addEventListener("click", async () => {
+    const text = commentInput.value.trim();
+    if (!text || !posts[currentIndex]) return;
+    const postId = posts[currentIndex].id;
+    
+    let username = "Guest" + Math.floor(Math.random() * 10000);
+    let userId = "guest";
+    
+    if (currentUser) {
+      try {
+        // Get current user's data
+        const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+        if (userSnap.exists()) {
+          const userData = userSnap.val();
+          username = userData.username || currentUser.email.split("@")[0] || "User";
+        } else {
+          username = currentUser.email.split("@")[0] || "User";
+        }
+        userId = currentUser.uid;
+      } catch (error) {
+        console.error("Error getting user data:", error);
+        username = currentUser.email.split("@")[0] || "User";
+        userId = currentUser.uid;
+      }
+    }
+    
+    const commentRef = push(ref(db, `comments/${postId}`));
+    set(commentRef, {
+      text,
+      user: username,
+      userId: userId,
+      timestamp: Date.now()
+    });
+    commentInput.value = "";
+  });
+
+  commentInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendComment.click();
+    }
+  });
+
+  // ✅ Open upload modal for everyone
+  openUpload.addEventListener("click", () => {
+    uploadModal.style.display = "flex";
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    uploadModal.style.display = "none";
+    imageInput.value = "";
+    captionInput.value = "";
+    previewImg.src = "";
+    previewImg.style.display = "none";
+  });
+
+  uploadModal.addEventListener("click", (e) => {
+    if (e.target === uploadModal) uploadModal.style.display = "none";
+  });
+
+  // ✅ Allow guests to upload too
   uploadBtn.addEventListener("click", async () => {
     const file = imageInput.files[0];
     const caption = captionInput.value;
-    
-    if (!file) {
-      showToast("Please select an image");
-      return;
-    }
+    if (!file) return;
 
     uploadBtn.disabled = true;
     uploadBtn.textContent = "Uploading...";
 
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
+    const formData = new FormData();
+    formData.append("image", file);
 
-      const res = await fetch("https://api.imgbb.com/1/upload?key=b31a521a301e076d60af4558f03fc9db", {
-        method: "POST",
-        body: formData
-      });
-      
+    try {
+      const res = await fetch("https://api.imgbb.com/1/upload?key=b31a521a301e076d60af4558f03fc9db", { method: "POST", body: formData });
       const data = await res.json();
-      
       if (data.success) {
         const imageUrl = data.data.url;
-        const postRef = push(ref(db, "posts"));
+        let username = "Guest" + Math.floor(Math.random() * 10000);
+        let userId = "guest";
         
+        if (currentUser) {
+          try {
+            // Get current user's data
+            const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+            if (userSnap.exists()) {
+              const userData = userSnap.val();
+              username = userData.username || currentUser.email.split("@")[0] || "User";
+            } else {
+              username = currentUser.email.split("@")[0] || "User";
+            }
+            userId = currentUser.uid;
+          } catch (error) {
+            console.error("Error getting user data:", error);
+            username = currentUser.email.split("@")[0] || "User";
+            userId = currentUser.uid;
+          }
+        }
+
+        const postRef = push(ref(db, "posts"));
         set(postRef, { 
           image: imageUrl, 
           caption, 
           likes: {}, 
-          user: { 
-            uid: currentUser.uid, 
-            name: currentUser.displayName || "Anonymous" 
-          },
-          timestamp: Date.now()
+          user: { name: username }, 
+          userId: userId,
+          timestamp: Date.now() 
         });
-        
-        showToast("Post uploaded successfully!");
-        resetUploadForm();
+
         uploadModal.style.display = "none";
-      } else {
-        showToast("Upload failed. Please try again.");
-      }
+        imageInput.value = ""; 
+        captionInput.value = ""; 
+        previewImg.src = ""; 
+        previewImg.style.display = "none";
+      } else { alert("Upload failed."); }
     } catch (err) {
       console.error(err);
-      showToast("Error uploading image");
-    } finally {
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = "Upload Post";
+      alert("Error uploading image.");
     }
+
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = "Upload";
   });
 
   closeView.addEventListener("click", () => viewModal.style.display = "none");
-  
-  viewModal.addEventListener("click", (e) => {
-    if (e.target === viewModal) {
-      viewModal.style.display = "none";
-    }
-  });
 
-  // Auth state change handler
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      signInBtn.style.display = "none";
-      signOutBtn.style.display = "flex";
-      showToast(`Welcome, ${user.displayName || "User"}!`);
-    } else {
-      currentUser = null;
-      signInBtn.style.display = "flex";
-      signOutBtn.style.display = "none";
-    }
-    loadPosts();
-  });
-
-  // Auth button handlers
-  const provider = new GoogleAuthProvider();
-  
-  signInBtn.addEventListener("click", () => {
-    signInWithPopup(auth, provider)
-      .then(() => {
-        showToast("Signed in successfully!");
-      })
-      .catch(err => {
-        console.error(err);
-        showToast("Sign in failed. Please try again.");
-      });
-  });
-  
-  signOutBtn.addEventListener("click", () => {
-    signOut(auth)
-      .then(() => {
-        showToast("Signed out successfully");
-      })
-      .catch(err => {
-        console.error(err);
-        showToast("Sign out error");
-      });
-  });
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (viewModal.style.display === 'flex') {
-        viewModal.style.display = 'none';
-      }
-      if (uploadModal.style.display === 'flex') {
-        resetUploadForm();
-        uploadModal.style.display = 'none';
-      }
-    }
+  onAuthStateChanged(auth, (user) => { 
+    currentUser = user; 
+    loadPosts(); 
   });
 </script>
 </body>
