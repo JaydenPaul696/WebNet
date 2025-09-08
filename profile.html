@@ -6,9 +6,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <title>WebNet - Profile</title>
   <style>
-    body { background: #121212; color: white; font-family: Arial, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-    
+    body { 
+      background: #121212; 
+      color: white; 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    /* Sticky header */
     header { 
+      position: sticky;
+      top: 0;
+      z-index: 20;
       padding: 15px; 
       background: #111; 
       color: white; 
@@ -32,7 +44,19 @@
     }
     .settings-btn:hover { background: #0066cc; }
 
-    nav { position: fixed; bottom: 0; width: 100%; background: #121212; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; border-top: 1px solid #333; z-index: 10; }
+    /* Sticky bottom navbar */
+    nav { 
+      position: fixed; 
+      bottom: 0; 
+      width: 100%; 
+      background: #121212; 
+      display: flex; 
+      justify-content: space-around; 
+      align-items: center; 
+      padding: 10px 0; 
+      border-top: 1px solid #333; 
+      z-index: 20;
+    }
     nav a { color: white; font-size: 1.4em; text-decoration: none; }
     nav a:hover { color: #0a84ff; }
 
@@ -58,23 +82,52 @@
     }
     .logout-btn:hover { background: #7684f1; }
 
-    .follow-btn { padding: 8px 20px; font-size: 1em; border: none; border-radius: 6px; cursor: pointer; background-color: #3247e7; color: white; transition: 0.3s; margin-top: 15px; max-width: 200px; }
+    .follow-btn { 
+      padding: 8px 20px; 
+      font-size: 1em; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      background-color: #3247e7; 
+      color: white; 
+      transition: 0.3s; 
+      margin-top: 15px; 
+      max-width: 200px; 
+    }
     .follow-btn.following { background-color: #d3d3d3; color: #333; }
 
-    .plus-btn { position: fixed; bottom: 70px; right: 20px; background: #3f2eff; color: white; width: 55px; height: 55px; border-radius: 50%; font-size: 1.6em; display: none; justify-content: center; align-items: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); cursor: pointer; z-index: 15; text-decoration: none; }
+    .plus-btn { 
+      position: fixed; 
+      bottom: 70px; 
+      right: 20px; 
+      background: #3f2eff; 
+      color: white; 
+      width: 55px; 
+      height: 55px; 
+      border-radius: 50%; 
+      font-size: 1.6em; 
+      display: none; 
+      justify-content: center; 
+      align-items: center; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+      cursor: pointer; 
+      z-index: 25; 
+      text-decoration: none; 
+    }
     .plus-btn:hover { background: #e01a4f; }
 
+    /* Loader overlay */
     #loaderOverlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%;
       height: 100%;
-      background: #121212;
+      background: rgba(18,18,18,0.95); /* slightly transparent */
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 15; /* below header/nav but above content */
     }
     .loader {
       border: 6px solid #333;
@@ -88,6 +141,7 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
     .verified-icon {
       color: #0a84ff;
       font-size: 0.9em;
