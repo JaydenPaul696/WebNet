@@ -11,533 +11,191 @@
   <title>Messages - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: #121212;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      padding: 15px;
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-      border-bottom: 1px solid #333;
-      background: #181818;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header-title {
-      flex: 1;
-      text-align: center;
-    }
-    .header-actions {
-      display: flex;
-      gap: 15px;
-    }
-    .header-actions button {
-      background: none;
-      border: none;
-      color: #eee;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-    }
-    .conversation-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .conversation {
-      display: flex;
-      align-items: center;
-      padding: 12px 15px;
-      border-bottom: 1px solid #252525;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .conversation:hover {
-      background-color: #1e1e1e;
-    }
-    .conversation-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: #3247e7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      margin-right: 15px;
-      flex-shrink: 0;
-    }
-    .conversation-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .conversation-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-    .conversation-name {
-      font-weight: bold;
-      font-size: 16px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .conversation-time {
-      font-size: 12px;
-      color: #888;
-      flex-shrink: 0;
-    }
-    .conversation-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .conversation-preview {
-      font-size: 14px;
-      color: #888;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 70%;
-    }
-    .conversation-unread {
-      background: #0a84ff;
-      color: white;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 70vh;
-      text-align: center;
-      padding: 20px;
-      color: #888;
-    }
-    .empty-state i {
-      font-size: 80px;
-      margin-bottom: 20px;
-      color: #444;
-    }
-    .empty-state h2 {
-      font-size: 22px;
-      margin: 0 0 10px 0;
-      color: #eee;
-    }
-    .empty-state p {
-      font-size: 16px;
-      line-height: 1.5;
-      max-width: 300px;
-    }
-    nav {
-      display: flex;
-      justify-content: space-around;
-      background: #121212;
-      padding: 12px 0;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      border-top: 1px solid #333;
-      z-index: 100;
-    }
-    nav a {
-      color: #eee;
-      font-size: 20px;
-      text-decoration: none;
-      padding: 5px 15px;
-      border-radius: 8px;
-      transition: background-color 0.2s;
-    }
-    nav a:hover, nav a.active {
-      color: #0a84ff;
-      background: #1e1e1e;
-    }
-    .fab {
-      position: fixed;
-      bottom: 70px;
-      right: 20px;
-      background: #0a84ff;
-      color: white;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
-      cursor: pointer;
-      z-index: 99;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-    .fab:hover {
-      background: #0066cc;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(10, 132, 255, 0.4);
-    }
-    .install-btn {
-      position: fixed;
-      top: 70px;
-      right: 20px;
-      background: #0a84ff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
-      z-index: 99;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.3s ease;
-    }
-    .install-btn.hidden {
-      display: none;
-    }
-    a {
-      text-decoration: none;
-      color: #0a84ff;
-    }
-    a:hover {
-      color: #0066cc;
-      text-decoration: none;
-    }
-    
-    /* iOS instructions modal */
-    .ios-install-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .ios-install-content {
-      background: #222;
-      border-radius: 12px;
-      padding: 25px;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    }
-    .ios-install-content h3 {
-      margin-top: 0;
-      color: #0a84ff;
-    }
-    .ios-install-content ol {
-      text-align: left;
-      margin: 20px 0;
-      padding-left: 20px;
-    }
-    .ios-install-content li {
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-    .ios-install-close {
-      background: #0a84ff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .ios-install-close:hover {
-      background: #0066cc;
-    }
+    body {margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:#121212;color:#eee;display:flex;flex-direction:column;height:100vh;}
+    header{padding:15px;font-size:20px;font-weight:bold;text-align:center;border-bottom:1px solid #333;background:#181818;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;}
+    .header-title{flex:1;text-align:center;}
+    .header-actions{display:flex;gap:15px;}
+    .header-actions button{background:none;border:none;color:#eee;font-size:18px;cursor:pointer;}
+    main{flex:1;overflow-y:auto;padding:0;position:relative;}
+    .conversation-list{list-style:none;padding:0;margin:0;}
+    .conversation{display:flex;align-items:center;padding:12px 15px;border-bottom:1px solid #252525;cursor:pointer;transition:background-color 0.2s;}
+    .conversation:hover{background-color:#1e1e1e;}
+    .conversation-avatar{width:50px;height:50px;border-radius:50%;background:#3247e7;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:15px;flex-shrink:0;}
+    .conversation-info{flex:1;min-width:0;}
+    .conversation-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+    .conversation-name{font-weight:bold;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}
+    .conversation-time{font-size:12px;color:#888;flex-shrink:0;}
+    .conversation-bottom{display:flex;justify-content:space-between;align-items:center;}
+    .conversation-preview{font-size:14px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;}
+    .conversation-unread{background:#0a84ff;color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;}
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70vh;text-align:center;padding:20px;color:#888;}
+    .empty-state i{font-size:80px;margin-bottom:20px;color:#444;}
+    .empty-state h2{font-size:22px;margin:0 0 10px 0;color:#eee;}
+    .empty-state p{font-size:16px;line-height:1.5;max-width:300px;}
+    nav{display:flex;justify-content:space-around;background:#121212;padding:12px 0;position:fixed;bottom:0;width:100%;border-top:1px solid #333;z-index:100;}
+    nav a{color:#eee;font-size:20px;text-decoration:none;padding:5px 15px;border-radius:8px;transition:background-color 0.2s;}
+    nav a:hover, nav a.active{color:#0a84ff;background:#1e1e1e;}
+    .fab{position:fixed;bottom:70px;right:20px;background:#0a84ff;color:white;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(10,132,255,0.3);cursor:pointer;z-index:99;text-decoration:none;transition:all 0.3s;}
+    .fab:hover{background:#0066cc;transform:translateY(-2px);box-shadow:0 6px 16px rgba(10,132,255,0.4);}
+    .loader-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:#121212;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:50;}
+    .loader{border:6px solid #333;border-top:6px solid #0a84ff;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite;}
+    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+    .verified-icon{color:#0a84ff;font-size:0.8em;}
   </style>
 </head>
 <body>
-  <header>
-    <div class="header-title">Messages</div>
-    <div class="header-actions">
-      <button><i class="fas fa-ellipsis-vertical"></i></button>
-    </div>
-  </header>
+<header>
+  <div class="header-title">Messages</div>
+  <div class="header-actions"><button><i class="fas fa-ellipsis-vertical"></i></button></div>
+</header>
 
-  <main id="conversationsList"></main>
-
-  <a href="new-message.html" class="fab">
-    <i class="fas fa-comment"></i>
-  </a>
-
-  <nav>
-    <a href="home.html" class="active"><i class="fas fa-comment"></i></a>
-    <a href="search.html"><i class="fas fa-search"></i></a>
-    <a href="profile.html"><i class="fas fa-user"></i></a>
-  </nav>
-
-  <button id="installButton" class="install-btn hidden">
-    <i class="fas fa-download"></i> Install App
-  </button>
-
-  <!-- iOS Install Instructions Modal -->
-  <div id="iosInstallModal" class="ios-install-modal">
-    <div class="ios-install-content">
-      <h3>Install WebNet App</h3>
-      <p>To install this app on your iOS device:</p>
-      <ol>
-        <li>Tap the <i class="fas fa-share-square"></i> Share button</li>
-        <li>Scroll down and select "Add to Home Screen"</li>
-        <li>Tap "Add" in the top right corner</li>
-      </ol>
-      <button class="ios-install-close" id="iosInstallClose">Got It!</button>
-    </div>
+<main id="conversationsList">
+  <div class="loader-overlay" id="loaderOverlay">
+    <div class="loader"></div>
+    <p style="margin-top:15px;color:#bbb;">Loading conversations...</p>
   </div>
+</main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+<a href="new-message.html" class="fab"><i class="fas fa-comment"></i></a>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
-      authDomain: "webnet2.firebaseapp.com",
-      databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
-      projectId: "webnet2",
-      storageBucket: "webnet2.appspot.com",
-      messagingSenderId: "323870835138",
-      appId: "1:323870835138:web:bca571d5620b766651565b"
-    };
+<nav>
+  <a href="home.html" class="active"><i class="fas fa-comment"></i></a>
+  <a href="search.html"><i class="fas fa-search"></i></a>
+  <a href="profile.html"><i class="fas fa-user"></i></a>
+</nav>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-    const conversationsList = document.getElementById('conversationsList');
-    const installButton = document.getElementById('installButton');
-    const iosInstallModal = document.getElementById('iosInstallModal');
-    const iosInstallClose = document.getElementById('iosInstallClose');
+const firebaseConfig = {
+  apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+  authDomain: "webnet2.firebaseapp.com",
+  databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
+  projectId: "webnet2",
+  storageBucket: "webnet2.appspot.com",
+  messagingSenderId: "323870835138",
+  appId: "1:323870835138:web:bca571d5620b766651565b"
+};
 
-    // Check if the app is running as a PWA
-    function isRunningAsPWA() {
-      return window.matchMedia('(display-mode: standalone)').matches || 
-             window.navigator.standalone === true;
-    }
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-    // Check if the device is iOS
-    function isIOS() {
-      return [
-        'iPad Simulator',
-        'iPhone Simulator',
-        'iPod Simulator',
-        'iPad',
-        'iPhone',
-        'iPod'
-      ].includes(navigator.platform) ||
-      (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-    }
+const conversationsList = document.getElementById('conversationsList');
+const loaderOverlay = document.getElementById('loaderOverlay');
 
-    // Show install prompt based on device and capabilities
-    function showInstallPrompt() {
-      // Don't show if already installed
-      if (isRunningAsPWA()) {
-        installButton.classList.add('hidden');
-        return;
-      }
+// Helper to append verified badge
+async function appendVerifiedBadge(element, uid) {
+  const snap = await get(ref(db, `users/${uid}/verified`));
+  if (snap.exists() && snap.val()) {
+    const checkIcon = document.createElement('i');
+    checkIcon.className = 'fa-solid fa-circle-check verified-icon';
+    element.appendChild(checkIcon);
+  }
+}
 
-      // Show for iOS devices
-      if (isIOS()) {
-        installButton.classList.remove('hidden');
-        installButton.innerHTML = '<i class="fas fa-download"></i> Install App';
-        return;
-      }
+function formatTime(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString();
+}
 
-      // For non-iOS, rely on beforeinstallprompt event
-      // This will be handled by the event listener below
-    }
+function createConversationElement(convo) {
+  const li = document.createElement('li');
+  li.className = 'conversation';
+  const initial = convo.name ? convo.name.charAt(0).toUpperCase() : '?';
 
-    // Format time function
-    function formatTime(timestamp) {
-      if (!timestamp) return '';
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diff = now - date;
-      const minutes = Math.floor(diff / 60000);
-      const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'conversation-name';
+  nameDiv.textContent = convo.name || 'Unknown';
+  appendVerifiedBadge(nameDiv, convo.userId);
 
-      if (minutes < 60) return `${minutes}m ago`;
-      if (hours < 24) return `${hours}h ago`;
-      if (days < 7) return `${days}d ago`;
-      return date.toLocaleDateString();
-    }
+  li.innerHTML = `
+    <div class="conversation-avatar">${initial}</div>
+    <div class="conversation-info">
+      <div class="conversation-top">
+      </div>
+      <div class="conversation-bottom">
+        <div class="conversation-preview">${convo.lastMessage || 'Start a conversation'}</div>
+        ${convo.unreadCount>0?`<div class="conversation-unread">${convo.unreadCount}</div>`:''}
+      </div>
+    </div>
+  `;
+  li.querySelector('.conversation-top').appendChild(nameDiv);
 
-    // Create conversation element
-    function createConversationElement(conversation) {
-      const li = document.createElement('li');
-      li.className = 'conversation';
-      const initial = conversation.name ? conversation.name.charAt(0).toUpperCase() : '?';
-      
-      li.innerHTML = `
-        <div class="conversation-avatar">${initial}</div>
-        <div class="conversation-info">
-          <div class="conversation-top">
-            <div class="conversation-name">${conversation.name}</div>
-            <div class="conversation-time">${formatTime(conversation.timestamp)}</div>
-          </div>
-          <div class="conversation-bottom">
-            <div class="conversation-preview">${conversation.lastMessage || 'Start a conversation'}</div>
-            ${conversation.unreadCount > 0 ? `<div class="conversation-unread">${conversation.unreadCount}</div>` : ''}
-          </div>
+  const timeDiv = document.createElement('div');
+  timeDiv.className = 'conversation-time';
+  timeDiv.textContent = formatTime(convo.timestamp);
+  li.querySelector('.conversation-top').appendChild(timeDiv);
+
+  li.addEventListener('click', () => {
+    window.location.href = `convo.html?userId=${convo.userId}`;
+  });
+  return li;
+}
+
+function loadConversations(userId) {
+  const userConvosRef = ref(db, `users/${userId}/conversations`);
+  onValue(userConvosRef, snapshot => {
+    loaderOverlay.style.display = 'flex';
+    if (!snapshot.exists()) {
+      conversationsList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-comments"></i>
+          <h2>No Messages Yet</h2>
+          <p>Tap the <i class="fas fa-comment" style="font-size:20px;"></i> button below to start a conversation</p>
         </div>
       `;
-
-      li.addEventListener('click', () => {
-        window.location.href = `convo.html?userId=${conversation.userId}`;
-      });
-
-      return li;
+      loaderOverlay.style.display = 'none';
+      return;
     }
 
-    // Load conversations
-    function loadConversations(userId) {
-      const userConvosRef = ref(db, `users/${userId}/conversations`);
-
-      onValue(userConvosRef, (snapshot) => {
-        if (!snapshot.exists()) {
-          conversationsList.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-comments"></i>
-              <h2>No Messages Yet</h2>
-              <p>Tap the <i class="fas fa-comment" style="font-size: 20px;"></i> button below to start a conversation</p>
-            </div>
-          `;
-          return;
-        }
-
-        // Convert snapshot to array
-        const conversations = [];
-        snapshot.forEach(childSnapshot => {
-          const convo = childSnapshot.val();
-          conversations.push({
-            userId: convo.otherUserId,
-            name: convo.otherUserName,
-            lastMessage: convo.lastMessage,
-            timestamp: convo.lastMessageTimestamp,
-            unreadCount: convo.unreadCount || 0
-          });
-        });
-
-        // Sort by latest message first
-        conversations.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-        const ul = document.createElement('ul');
-        ul.className = 'conversation-list';
-
-        conversations.forEach(convo => {
-          ul.appendChild(createConversationElement(convo));
-        });
-
-        conversationsList.innerHTML = '';
-        conversationsList.appendChild(ul);
+    const conversations = [];
+    snapshot.forEach(childSnap => {
+      const convo = childSnap.val();
+      conversations.push({
+        userId: convo.otherUserId,
+        name: convo.otherUserName,
+        lastMessage: convo.lastMessage,
+        timestamp: convo.lastMessageTimestamp,
+        unreadCount: convo.unreadCount || 0
       });
-    }
-
-    // Auth check
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
-      loadConversations(user.uid);
-      
-      // Show install prompt after auth check
-      showInstallPrompt();
     });
 
-    // PWA install button logic
-    let deferredPrompt;
+    conversations.sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      
-      // Show the install button for non-iOS devices
-      if (!isIOS()) {
-        installButton.classList.remove('hidden');
-      }
-    });
+    const ul = document.createElement('ul');
+    ul.className = 'conversation-list';
+    conversations.forEach(convo => ul.appendChild(createConversationElement(convo)));
 
-    installButton.addEventListener('click', async () => {
-      // For iOS, show instructions
-      if (isIOS()) {
-        iosInstallModal.style.display = 'flex';
-        return;
-      }
-      
-      // For other devices, use the deferred prompt
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        if (outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        }
-        
-        deferredPrompt = null;
-        installButton.classList.add('hidden');
-      }
-    });
+    conversationsList.innerHTML = '';
+    conversationsList.appendChild(ul);
+    loaderOverlay.style.display = 'none';
+  });
+}
 
-    // Close iOS instructions modal
-    iosInstallClose.addEventListener('click', () => {
-      iosInstallModal.style.display = 'none';
-    });
+onAuthStateChanged(auth, user => {
+  if (!user) window.location.href = 'index.html';
+  else loadConversations(user.uid);
+});
+</script>
 
-    // Close modal if clicked outside
-    iosInstallModal.addEventListener('click', (e) => {
-      if (e.target === iosInstallModal) {
-        iosInstallModal.style.display = 'none';
-      }
-    });
-
-    // Check if already installed
-    window.addEventListener('appinstalled', () => {
-      installButton.classList.add('hidden');
-      deferredPrompt = null;
-    });
-  </script>
-  <script>
+<script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((reg) => console.log("Service Worker registered:", reg.scope))
-      .catch((err) => console.error("Service Worker registration failed:", err));
+    navigator.serviceWorker.register("sw.js")
+      .then(reg => console.log("Service Worker registered:", reg.scope))
+      .catch(err => console.error("SW registration failed:", err));
   });
 }
 </script>
