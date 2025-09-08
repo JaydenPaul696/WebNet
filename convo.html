@@ -6,182 +6,31 @@
   <title>Messages - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #eee;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      background: #181818;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      border-bottom: 1px solid #333;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .back-btn {
-      color: #0a84ff;
-      font-size: 1.2em;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
-    .header-info {
-      flex: 1;
-    }
-    .recipient-name {
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-    .recipient-status {
-      font-size: 0.8em;
-      color: #0a84ff;
-    }
-    .header-actions {
-      display: flex;
-      gap: 15px;
-    }
-    .header-actions button {
-      background: none;
-      border: none;
-      color: #eee;
-      font-size: 1.1em;
-      cursor: pointer;
-    }
-    .messages-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .message {
-      max-width: 70%;
-      padding: 12px;
-      border-radius: 18px;
-      margin-bottom: 5px;
-      position: relative;
-    }
-    .message.sent {
-      background: #0a84ff;
-      color: white;
-      align-self: flex-end;
-      border-bottom-right-radius: 5px;
-      
-    }
-    .message.received {
-      background: #2a2a2a;
-      color: #eee;
-      align-self: flex-start;
-      border-bottom-left-radius: 5px;
-    }
-    .message-time {
-      font-size: 0.7em;
-      opacity: 0.7;
-      margin-top: 5px;
-      text-align: right;
-    }
-    .message-input-container {
-      position: fixed; 
-      padding: 15px;
-      background: #181818;
-      border-top: 1px solid #333;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-  
-  .message-input-container {
-  position: fixed;  /* make it stick to the bottom */
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 15px;
-  background: #181818;
-  border-top: 1px solid #333;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  z-index: 100; /* so it’s above messages */
-}
-  
-  .messages-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
-  padding-bottom: 90px; /* enough space for sticky input */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-  
-  
-  
-    .message-input {
-      flex: 1;
-      padding: 12px;
-      border: 1px solid #333;
-      border-radius: 25px;
-      background: #2a2a2a;
-      color: #eee;
-      outline: none;
-    }
-    .message-input:focus {
-      border-color: #0a84ff;
-    }
-    .send-btn {
-      background: #0a84ff;
-      color: white;
-      border: none;
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .send-btn:disabled {
-      background: #333;
-      cursor: not-allowed;
-    }
-    .send-btn:hover:not(:disabled) {
-      background: #0066cc;
-    }
-    .typing-indicator {
-      padding: 10px;
-      color: #0a84ff;
-      font-style: italic;
-      font-size: 0.9em;
-      align-self: flex-start;
-    }
-    .message-date {
-      text-align: center;
-      color: #888;
-      font-size: 0.8em;
-      margin: 15px 0;
-      padding: 5px;
-    }
-  a::hover{
-    color: red;
-    text-decoration: none;
-  }
-  a{
-    text-decoration: none;
-     color: red;
-  }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family: Arial, sans-serif; background:#121212; color:#eee; height:100vh; display:flex; flex-direction:column; }
+    header { background:#181818; padding:15px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #333; position:sticky; top:0; z-index:100; }
+    .back-btn { color:#0a84ff; font-size:1.2em; cursor:pointer; background:none; border:none; }
+    .header-info { flex:1; }
+    .recipient-name { font-weight:bold; font-size:1.1em; display:flex; align-items:center; gap:5px; }
+    .recipient-name i { color:#0a84ff; font-size:0.9em; }
+    .recipient-status { font-size:0.8em; color:#0a84ff; }
+    .header-actions { display:flex; gap:15px; }
+    .header-actions button { background:none; border:none; color:#eee; font-size:1.1em; cursor:pointer; }
+    .messages-container { flex:1; overflow-y:auto; padding:15px; padding-bottom:90px; display:flex; flex-direction:column; gap:10px; }
+    .message { max-width:70%; padding:12px; border-radius:18px; margin-bottom:5px; position:relative; }
+    .message.sent { background:#0a84ff; color:white; align-self:flex-end; border-bottom-right-radius:5px; }
+    .message.received { background:#2a2a2a; color:#eee; align-self:flex-start; border-bottom-left-radius:5px; }
+    .message-time { font-size:0.7em; opacity:0.7; margin-top:5px; text-align:right; }
+    .message-input-container { position:fixed; bottom:0; left:0; width:100%; padding:15px; background:#181818; border-top:1px solid #333; display:flex; gap:10px; align-items:center; z-index:100; }
+    .message-input { flex:1; padding:12px; border:1px solid #333; border-radius:25px; background:#2a2a2a; color:#eee; outline:none; }
+    .message-input:focus { border-color:#0a84ff; }
+    .send-btn { background:#0a84ff; color:white; border:none; width:45px; height:45px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .send-btn:disabled { background:#333; cursor:not-allowed; }
+    .send-btn:hover:not(:disabled) { background:#0066cc; }
+    .typing-indicator { padding:10px; color:#0a84ff; font-style:italic; font-size:0.9em; align-self:flex-start; display:none; }
+    .message-date { text-align:center; color:#888; font-size:0.8em; margin:15px 0; padding:5px; }
+    a:hover { text-decoration:none; color:red; }
+    a { text-decoration:none; color:red; }
   </style>
 </head>
 <body>
@@ -203,7 +52,7 @@
 
 <div class="messages-container" id="messagesContainer">
   <div class="message-date">Today</div>
-  <div class="loading">Loading messages...</div>
+  <div class="typing-indicator" id="typingIndicator">Typing...</div>
 </div>
 
 <div class="message-input-container">
@@ -216,17 +65,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-  import { 
-    getDatabase, 
-    ref, 
-    push, 
-    onValue, 
-    serverTimestamp, 
-    query, 
-    orderByChild, 
-    get, 
-    set 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, push, onValue, serverTimestamp, get, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -246,210 +85,126 @@
   let recipientUser = null;
   let conversationId = null;
 
-  // Get recipient ID from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const recipientId = urlParams.get('userId');
 
-  // DOM elements
   const recipientNameElem = document.getElementById('recipientName');
   const recipientStatusElem = document.getElementById('recipientStatus');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
+  const typingIndicator = document.getElementById('typingIndicator');
 
-  // Back button function
-  window.goBack = function() {
-    window.history.back();
-  };
+  window.goBack = () => window.history.back();
+  window.callUser = () => alert('Voice call feature coming soon!');
+  window.videoCall = () => alert('Video call feature coming soon!');
+  window.showProfile = () => { if(recipientUser) window.location.href=`profile.html?userId=${recipientUser.uid}`; }
 
-  // Action buttons (placeholder functions)
-  window.callUser = function() {
-    alert('Voice call feature coming soon!');
-  };
-
-  window.videoCall = function() {
-    alert('Video call feature coming soon!');
-  };
-
-  window.showProfile = function() {
-    if (recipientUser) {
-      window.location.href = `profile.html?userId=${recipientUser.uid}`;
-    }
-  };
-
-  // Enable/disable send button based on input
   messageInput.addEventListener('input', () => {
     sendBtn.disabled = messageInput.value.trim() === '';
+    if(currentUser && conversationId) {
+      update(ref(db, `users/${currentUser.uid}/typing`), { [conversationId]: messageInput.value.trim() !== '' });
+    }
   });
 
-  // Send message on Enter key
   messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !sendBtn.disabled) {
-      sendMessage();
-    }
+    if(e.key === 'Enter' && !sendBtn.disabled) sendMessage();
   });
 
-  // Update conversation metadata for both users
-  async function updateConversationMetadata(messageText) {
-    if (!currentUser || !recipientUser) return;
-    
-    try {
-      // Get recipient user details
-      const recipientRef = ref(db, `users/${recipientId}`);
-      const recipientSnapshot = await get(recipientRef);
-      const recipientData = recipientSnapshot.val();
-      const recipientName = recipientData.username || recipientData.email.split('@')[0];
-      
-      // Get current user details
-      const currentUserRef = ref(db, `users/${currentUser.uid}`);
-      const currentUserSnapshot = await get(currentUserRef);
-      const currentUserData = currentUserSnapshot.val();
-      const currentUserName = currentUserData.username || currentUserData.email.split('@')[0];
-      
-      // Update conversation for current user
-      const currentUserConvoRef = ref(db, `users/${currentUser.uid}/conversations/${conversationId}`);
-      await set(currentUserConvoRef, {
-        otherUserId: recipientId,
-        otherUserName: recipientName,
-        lastMessage: messageText,
-        lastMessageTimestamp: serverTimestamp(),
-        unreadCount: 0
-      });
-      
-      // Update conversation for recipient user
-      const recipientConvoRef = ref(db, `users/${recipientId}/conversations/${conversationId}`);
-      await set(recipientConvoRef, {
-        otherUserId: currentUser.uid,
-        otherUserName: currentUserName,
-        lastMessage: messageText,
-        lastMessageTimestamp: serverTimestamp(),
-        unreadCount: 1 // Mark as unread for recipient
-      });
-      
-    } catch (error) {
-      console.error('Error updating conversation metadata:', error);
-    }
-  }
-
-  // Send message function
   async function sendMessage() {
     const messageText = messageInput.value.trim();
-    if (!messageText || !conversationId) return;
-
+    if(!messageText || !conversationId) return;
+    sendBtn.disabled = true;
     try {
-      sendBtn.disabled = true;
-      
-      // First, update conversation metadata
-      await updateConversationMetadata(messageText);
-      
-      // Then, send the actual message
-      const messagesRef = ref(db, `conversations/${conversationId}/messages`);
-      await push(messagesRef, {
+      await push(ref(db, `conversations/${conversationId}/messages`), {
         senderId: currentUser.uid,
         text: messageText,
         timestamp: serverTimestamp(),
         read: false
       });
-
-      // Clear input
       messageInput.value = '';
       sendBtn.disabled = true;
-
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Failed to send message. Try again.');
+      await update(ref(db, `users/${currentUser.uid}/typing`), { [conversationId]: false });
+    } catch(err) {
+      console.error("Error sending message:", err);
       sendBtn.disabled = false;
     }
   }
 
-  sendBtn.addEventListener('click', sendMessage);
-
-  // Format message timestamp
-  function formatMessageTime(timestamp) {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  function formatMessageTime(ts) {
+    if(!ts) return '';
+    return new Date(ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
   }
 
-  // Load messages
-  function loadMessages() {
-    if (!conversationId) return;
+  function showMessage(message) {
+    const isSent = message.senderId === currentUser.uid;
+    const msgElem = document.createElement('div');
+    msgElem.className = `message ${isSent?'sent':'received'}`;
+    msgElem.innerHTML = `<div class="message-text">${message.text}</div><div class="message-time">${formatMessageTime(message.timestamp)}</div>`;
+    messagesContainer.appendChild(msgElem);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-    const messagesRef = ref(db, `conversations/${conversationId}/messages`);
-    const messagesQuery = query(messagesRef, orderByChild('timestamp'));
-
-    onValue(messagesQuery, (snapshot) => {
-      messagesContainer.innerHTML = '';
-
-      if (!snapshot.exists()) {
-        messagesContainer.innerHTML = '<div class="message-date">Start a conversation</div>';
-        return;
-      }
-
-      const messages = [];
-      snapshot.forEach((childSnapshot) => {
-        messages.push({
-          id: childSnapshot.key,
-          ...childSnapshot.val()
+  async function markMessagesAsRead(conversationId, currentUserId) {
+    try {
+      const messagesRef = ref(db, `conversations/${conversationId}/messages`);
+      const snapshot = await get(messagesRef);
+      if (snapshot.exists()) {
+        const updates = {};
+        snapshot.forEach(child => {
+          const message = child.val();
+          if (message.senderId !== currentUserId && !message.read) {
+            updates[`${child.key}/read`] = true;
+            console.log(`Marking message ${child.key} as read`);
+          }
         });
-      });
-
-      // Display messages
-      messages.forEach(message => {
-        const isSent = message.senderId === currentUser.uid;
-        const messageElement = document.createElement('div');
-        messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
-        
-        messageElement.innerHTML = `
-          <div class="message-text">${message.text}</div>
-          <div class="message-time">${formatMessageTime(message.timestamp)}</div>
-        `;
-
-        messagesContainer.appendChild(messageElement);
-      });
-
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
+        if (Object.keys(updates).length > 0) {
+          await update(ref(db, `conversations/${conversationId}/messages`), updates);
+          console.log(`Updated ${Object.keys(updates).length} messages to read`);
+        }
+      }
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+    }
   }
 
-  // Initialize conversation
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "index.html";
-      return;
-    }
-
+    if(!user){ window.location.href="index.html"; return; }
     currentUser = user;
+    if(!recipientId){ messagesContainer.innerHTML = '<div class="message-date">No user selected</div>'; return; }
 
-    if (!recipientId) {
-      messagesContainer.innerHTML = '<div class="message-date">No user selected</div>';
-      return;
-    }
-
-    // Generate conversation ID (sorted to avoid duplicates)
     conversationId = [currentUser.uid, recipientId].sort().join('_');
 
-    // Load recipient info
     const recipientRef = ref(db, `users/${recipientId}`);
     const recipientSnapshot = await get(recipientRef);
-    
-    if (recipientSnapshot.exists()) {
-      const recipientData = recipientSnapshot.val();
-      const recipientName = recipientData.username || recipientData.email.split('@')[0];
-      recipientNameElem.textContent = recipientName;
-      recipientUser = { uid: recipientId, ...recipientData };
+
+    if(recipientSnapshot.exists()) {
+      const data = recipientSnapshot.val();
+      recipientUser = { uid: recipientId, ...data };
+      recipientNameElem.textContent = data.username || data.email.split('@')[0];
+      if(data.verified) recipientNameElem.innerHTML += ' <i class="fas fa-circle-check"></i>';
+
+      const statusRef = ref(db, `users/${recipientId}/status`);
+      onValue(statusRef, snap => { recipientStatusElem.textContent = snap.val()?'Online':'Offline'; });
+
+      const typingRef = ref(db, `users/${recipientId}/typing/${conversationId}`);
+      onValue(typingRef, snap => { typingIndicator.style.display = snap.val()?'block':'none'; });
     } else {
-      recipientNameElem.textContent = `User ${recipientId.substring(0, 6)}...`;
       recipientUser = { uid: recipientId };
     }
 
-    // Load messages
-    loadMessages();
+    const messagesRef = ref(db, `conversations/${conversationId}/messages`);
+    onValue(messagesRef, snapshot => {
+      messagesContainer.innerHTML = '';
+      if(!snapshot.exists()) messagesContainer.innerHTML = '<div class="message-date">Start a conversation</div>';
+      else snapshot.forEach(child => showMessage({id:child.key, ...child.val()}));
+    });
+
+    await markMessagesAsRead(conversationId, currentUser.uid);
   });
+
+  sendBtn.addEventListener('click', sendMessage);
 </script>
+
 </body>
 </html>

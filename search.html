@@ -1,255 +1,422 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
-  <title>WebNet - Search</title>  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  
-  <style>  
-    * { margin: 0; padding: 0; box-sizing: border-box; }  
-    body {  
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
-      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);  
-      color: white;  
-      min-height: 100vh;  
-      display: flex;  
-      flex-direction: column;  
-      padding-bottom: 60px;  
-    }  
-    header {  
-      padding: 20px;  
-      text-align: center;  
-      font-size: 1.5rem;  
-      background: rgba(255, 255, 255, 0.05);  
-      backdrop-filter: blur(8px);  
-      border-bottom: 1px solid #333;  
-    }  
-    #searchBox {  
-      margin: 20px auto;  
-      width: 90%;  
-      max-width: 400px;  
-      display: flex;  
-      flex-direction: column;  
-      align-items: center;  
-    }  
-    input {  
-      width: 100%;  
-      padding: 10px 15px;  
-      border-radius: 8px;  
-      border: none;  
-      outline: none;  
-      font-size: 1rem;  
-      background: #222;  
-      color: #fff;  
-      margin-bottom: 10px;  
-    }  
-
-    #results {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-      width: 100%;
-      max-width: 400px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a84ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <title>Search - WebNet</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-
-    .user-card {
-      background: #232323;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-      text-align: center;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    header {
+      background: #181818;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .back-btn {
+      color: #0a84ff;
+      font-size: 1.2em;
       cursor: pointer;
-      transition: transform 0.2s ease, background 0.3s ease;
+      background: none;
+      border: none;
+      padding: 10px;
     }
-
-    .user-card:hover {
-      transform: translateY(-5px);
-      background: #2e2e2e;
-    }
-
-    .user-avatar {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 10px;
-      background: #444;
-    }
-
-    .avatar-placeholder {
-      font-size: 50px;
-      color: gray;
-      margin-bottom: 10px;
-    }
-
-    .user-name {
-      color: white;
+    .header-title {
+      flex: 1;
       font-weight: bold;
       font-size: 1.1em;
-      margin: 5px 0;
+      text-align: center;
     }
-
+    .search-container {
+      padding: 12px 15px;
+      background: #181818;
+      border-bottom: 1px solid #333;
+      position: sticky;
+      top: 48px;
+      z-index: 99;
+    }
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-input {
+      width: 100%;
+      padding: 10px 40px 10px 15px;
+      border-radius: 20px;
+      border: none;
+      background: #2a2a2a;
+      color: #eee;
+      outline: none;
+      font-size: 1em;
+    }
+    .search-input:focus {
+      background: #333;
+    }
+    .search-input::placeholder {
+      color: #888;
+    }
+    .clear-btn {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.2em;
+      cursor: pointer;
+      display: none;
+      padding: 10px;
+    }
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 70px; /* Space for fixed navbar */
+    }
+    .users-list {
+      list-style: none;
+      padding: 0;
+    }
+    .user-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      border-bottom: 1px solid #252525;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .user-item:hover {
+      background-color: #1e1e1e;
+    }
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #3247e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .user-name {
+      font-weight: bold;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
     .user-username {
-      color: #bbb;
+      font-size: 0.85em;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #444;
+      margin-left: 10px;
+    }
+    .user-status.online {
+      background: #25D366;
+    }
+    .chat-btn {
+      color: #0a84ff;
+      font-size: 1.2em;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 10px;
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      text-align: center;
+      padding: 20px;
+      color: #888;
+    }
+    .empty-state i {
+      font-size: 3.5em;
+      margin-bottom: 15px;
+      color: #444;
+    }
+    .empty-state h2 {
+      font-size: 1.2em;
+      margin: 0 0 10px;
+      color: #eee;
+    }
+    .empty-state p {
       font-size: 0.9em;
+      line-height: 1.5;
+      max-width: 80%;
     }
+    .loader {
+      text-align: center;
+      padding: 20px;
+      color: #888;
+      font-style: italic;
+    }
+    .loader i {
+      margin-right: 8px;
+      color: #0a84ff;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #181818;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      border-top: 1px solid #333;
+      z-index: 100;
+    }
+    nav a {
+      color: #eee;
+      font-size: 1.4em;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    nav a.active {
+      color: #0a84ff;
+      background: #1e1e1e;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    .verified-badge {
+      color: #0a84ff;
+      font-size: 0.85em;
+    }
+    @media (min-width: 768px) {
+      .search-container {
+        padding: 15px 20%;
+      }
+      .user-item {
+        padding: 15px 20%;
+      }
+    }
+  </style>
+</head>
+<body>
 
-    nav {  
-      position: fixed;  
-      bottom: 0;  
-      width: 100%;  
-      background: #121212;  
-      display: flex;  
-      justify-content: space-around;  
-      align-items: center;  
-      padding: 10px 0;  
-      border-top: 1px solid #333;  
-      z-index: 10;  
-    }  
-    nav a {  
-      color: white;  
-      text-decoration: none;  
-      text-align: center;  
-      font-size: 1.2rem;  
-    }  
-    nav a i {  
-      display: block;  
-      font-size: 1.5rem;  
-      margin-bottom: 5px;  
-    }
-  </style>  
-</head>  
-<body>  
-  
-  <header>Search Users</header>  
-  
-  <section id="searchBox">  
-    <input type="text" id="searchInput" placeholder="Find users..." autocomplete="off" />  
-    <div id="results"></div>  
-  </section>  
-  
-  <nav>  
-    <a href="home.html"><i class="fas fa-comment"></i></a>  
-    <a href="search.html"><i class="fas fa-search"></i></a>  
-    <a href="profile.html"><i class="fas fa-user"></i></a>  
-  </nav>  
-  
+<header>
+  <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+  <div class="header-title">Search Users</div>
+</header>
+
+<div class="search-container">
+  <div class="search-wrapper">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search users..." autocomplete="off" aria-label="Search users">
+    <button class="clear-btn" id="clearBtn"><i class="fas fa-times"></i></button>
+  </div>
+</div>
+
+<main id="usersList">
+  <div class="empty-state">
+    <i class="fas fa-search"></i>
+    <h2>Search Users</h2>
+    <p>Start typing to find users</p>
+  </div>
+</main>
+
+<nav>
+  <a href="home.html"><i class="fas fa-comment"></i></a>
+  <a href="search.html" class="active"><i class="fas fa-search"></i></a>
+  <a href="notifications.html"><i class="fas fa-bell"></i><span class="notification-badge" id="notifBadge" style="display:none;">0</span></a>
+  <a href="profile.html"><i class="fas fa-user"></i></a>
+</nav>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
     authDomain: "webnet2.firebaseapp.com",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
     projectId: "webnet2",
-    storageBucket: "webnet2.firebasestorage.app",
+    storageBucket: "webnet2.appspot.com",
     messagingSenderId: "323870835138",
-    appId: "1:323870835138:web:bca571d5620b766651565b",
-    databaseURL: "https://webnet2-default-rtdb.firebaseio.com"
+    appId: "1:323870835138:web:bca571d5620b766651565b"
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getDatabase(app);
 
-  const searchInput = document.getElementById("searchInput");
-  const resultsDiv = document.getElementById("results");
-
+  let currentUser = null;
+  let usersCache = {};
   let debounceTimeout;
-  const searchCache = new Map();
 
-  function showLoading() {
-    resultsDiv.innerHTML = `<p style="color:#aaa; text-align:center;">Loading...</p>`;
+  const searchInput = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("clearBtn");
+  const usersList = document.getElementById("usersList");
+
+  // Back button
+  window.goBack = () => window.history.back();
+
+  // Create user item
+  function createUserItem(userData, userId) {
+    if (userId === currentUser?.uid) return null;
+    const userItem = document.createElement('li');
+    userItem.className = 'user-item';
+    const userName = userData.realName || userData.username || userData.email?.split('@')[0] || 'Unknown';
+    const userInitial = userName.charAt(0).toUpperCase();
+    userItem.innerHTML = `
+      <div class="user-avatar">${userData.profilePicture ? `<img src="${userData.profilePicture}" class="user-avatar" alt="${userName}">` : userInitial}</div>
+      <div class="user-info">
+        <div class="user-name">${userName}${userData.verified ? ' <i class="fas fa-circle-check verified-badge"></i>' : ''}<div class="user-status ${userData.status ? 'online' : ''}"></div></div>
+        <div class="user-username">@${userData.username || 'unknown'}</div>
+      </div>
+      <button class="chat-btn" title="Start Chat" aria-label="Start chat with ${userName}"><i class="fas fa-comment"></i></button>
+    `;
+    userItem.addEventListener('click', (e) => {
+      if (!e.target.closest('.chat-btn')) {
+        window.location.href = `profile.html?uid=${userId}`;
+      }
+    });
+    userItem.querySelector('.chat-btn').addEventListener('click', () => {
+      window.location.href = `convo.html?userId=${userId}`;
+    });
+    return userItem;
   }
 
-  function clearResults() {
-    resultsDiv.innerHTML = "";
-  }
-
-  searchInput.addEventListener("input", () => {
-    clearTimeout(debounceTimeout);
-
-    debounceTimeout = setTimeout(async () => {
-      const searchTerm = searchInput.value.trim().toLowerCase();
-
-      if (searchTerm === "") {
-        clearResults();
-        return;
-      }
-
-      if (searchCache.has(searchTerm)) {
-        renderResults(searchCache.get(searchTerm));
-        return;
-      }
-
-      showLoading();
-
-      try {
-        const dbRef = ref(db);
-        const snapshot = await get(child(dbRef, "users"));
-
-        if (!snapshot.exists()) {
-          resultsDiv.textContent = "No users in database.";
-          return;
-        }
-
-        const users = snapshot.val();
-        const matches = [];
-
-        Object.entries(users).forEach(([uid, user]) => {
-          const { realName = "", username = "", profilePicture = "" } = user;
-          if (
-            realName.toLowerCase().includes(searchTerm) ||
-            username.toLowerCase().includes(searchTerm)
-          ) {
-            matches.push({ uid, realName, username, profilePicture });
-          }
-        });
-
-        searchCache.set(searchTerm, matches);
-
-        renderResults(matches);
-      } catch (error) {
-        resultsDiv.textContent = "Error loading users.";
-        console.error("Search error:", error);
-      }
-    }, 400); // debounce 400ms
-  });
-
-  function renderResults(matches) {
-    clearResults();
-
-    if (matches.length === 0) {
-      resultsDiv.textContent = "No results found.";
+  // Display users
+  function displayUsers(users) {
+    usersList.innerHTML = '';
+    if (users.length === 0) {
+      usersList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-user-plus"></i>
+          <h2>No users found</h2>
+          <p>Try a different search term</p>
+        </div>
+      `;
       return;
     }
+    const ul = document.createElement('ul');
+    ul.className = 'users-list';
+    users.forEach(user => {
+      const userItem = createUserItem(user.data, user.id);
+      if (userItem) ul.appendChild(userItem);
+    });
+    usersList.appendChild(ul);
+  }
 
-    matches.forEach(user => {
-      const card = document.createElement("div");
-      card.classList.add("user-card");
-
-      if (user.profilePicture) {
-        card.innerHTML = `
-          <img src="${user.profilePicture}" class="user-avatar" alt="${user.realName}">
-          <div class="user-name">${user.realName || "Unnamed"}</div>
-          <div class="user-username">@${user.username || "unknown"}</div>
-        `;
-      } else {
-        card.innerHTML = `
-          <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
-          <div class="user-name">${user.realName || "Unnamed"}</div>
-          <div class="user-username">@${user.username || "unknown"}</div>
-        `;
+  // Filter users
+  function filterUsers(searchTerm) {
+    clearBtn.style.display = searchTerm ? 'block' : 'none';
+    if (!searchTerm) {
+      usersList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-search"></i>
+          <h2>Search Users</h2>
+          <p>Start typing to find users</p>
+        </div>
+      `;
+      return;
+    }
+    usersList.innerHTML = '<div class="loader"><i class="fas fa-circle-notch"></i> Searching...</div>';
+    const matches = [];
+    Object.entries(usersCache).forEach(([uid, userData]) => {
+      const name = userData.realName || userData.username || userData.email?.split('@')[0] || '';
+      const username = userData.username || '';
+      if (searchTerm && (name.toLowerCase().includes(searchTerm.toLowerCase()) || username.toLowerCase().includes(searchTerm.toLowerCase()))) {
+        matches.push({ id: uid, data: userData });
       }
+    });
+    displayUsers(matches);
+  }
 
-      card.addEventListener("click", () => {
-        window.location.href = `profile.html?uid=${user.uid}`;
-      });
-
-      resultsDiv.appendChild(card);
+  // Load users
+  function loadUsersRealtime() {
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+      console.log("Users snapshot updated:", snapshot.val());
+      usersCache = snapshot.exists() ? snapshot.val() : {};
+      const searchTerm = searchInput.value.trim();
+      filterUsers(searchTerm);
+    }, (error) => {
+      console.error("Error loading users:", error);
+      displayUsers([]);
     });
   }
+
+  // Auth check
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+    currentUser = user;
+    loadUsersRealtime();
+  });
+
+  // Search input with debounce
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => filterUsers(e.target.value.trim()), 300);
+  });
+
+  // Clear search
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    searchInput.focus();
+    filterUsers('');
+  });
+
+  // Handle mobile keyboard
+  window.visualViewport.addEventListener('resize', () => {
+    document.body.style.height = `${window.visualViewport.height}px`;
+  });
 </script>
-  
-</body>  
+</body>
 </html>

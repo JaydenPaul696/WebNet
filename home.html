@@ -67,7 +67,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -88,11 +88,15 @@ const loaderOverlay = document.getElementById('loaderOverlay');
 
 // Helper to append verified badge
 async function appendVerifiedBadge(element, uid) {
-  const snap = await get(ref(db, `users/${uid}/verified`));
-  if (snap.exists() && snap.val()) {
-    const checkIcon = document.createElement('i');
-    checkIcon.className = 'fa-solid fa-circle-check verified-icon';
-    element.appendChild(checkIcon);
+  try {
+    const snap = await get(ref(db, `users/${uid}/verified`));
+    if (snap.exists() && snap.val()) {
+      const checkIcon = document.createElement('i');
+      checkIcon.className = 'fa-solid fa-circle-check verified-icon';
+      element.appendChild(checkIcon);
+    }
+  } catch (error) {
+    console.error("Error checking verified status:", error);
   }
 }
 
@@ -110,44 +114,123 @@ function formatTime(timestamp) {
   return date.toLocaleDateString();
 }
 
-function createConversationElement(convo) {
+async function getLastMessage(conversationId, currentUserId) {
+  try {
+    const messagesRef = ref(db, `conversations/${conversationId}/messages`);
+    const messagesQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
+    const snapshot = await get(messagesRef); // Fetch all messages for unread count
+    let lastMessage = 'Start a conversation';
+    let lastTimestamp = 0;
+    let unreadCount = 0;
+
+    if (snapshot.exists()) {
+      // Count unread messages (sent by other user, read: false)
+      snapshot.forEach(child => {
+        const messageData = child.val();
+        if (messageData.senderId !== currentUserId && !messageData.read) {
+          unreadCount++;
+        }
+      });
+      console.log(`Conversation ${conversationId}: ${unreadCount} unread messages`); // Debug log
+
+      // Get the last message
+      const lastMessageSnapshot = await get(messagesQuery);
+      if (lastMessageSnapshot.exists()) {
+        lastMessageSnapshot.forEach(child => {
+          const messageData = child.val();
+          lastMessage = messageData.text;
+          lastTimestamp = messageData.timestamp;
+        });
+      }
+    }
+    
+    return { lastMessage, lastTimestamp, unreadCount };
+  } catch (error) {
+    console.error("Error fetching last message:", error);
+  }
+  
+  return { lastMessage: 'Start a conversation', lastTimestamp: 0, unreadCount: 0 };
+}
+
+async function getUserDisplayName(uid) {
+  try {
+    const userRef = ref(db, `users/${uid}`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      const userData = snapshot.val();
+      return userData.username || userData.email.split('@')[0] || 'Unknown';
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+  return 'Unknown';
+}
+
+async function createConversationElement(conversationId, otherUserId, currentUserId) {
   const li = document.createElement('li');
   li.className = 'conversation';
-  const initial = convo.name ? convo.name.charAt(0).toUpperCase() : '?';
+  
+  const displayName = await getUserDisplayName(otherUserId);
+  const initial = displayName.charAt(0).toUpperCase();
+
+  const avatarDiv = document.createElement('div');
+  avatarDiv.className = 'conversation-avatar';
+  avatarDiv.textContent = initial;
+
+  const infoDiv = document.createElement('div');
+  infoDiv.className = 'conversation-info';
+
+  const topDiv = document.createElement('div');
+  topDiv.className = 'conversation-top';
 
   const nameDiv = document.createElement('div');
   nameDiv.className = 'conversation-name';
-  nameDiv.textContent = convo.name || 'Unknown';
-  appendVerifiedBadge(nameDiv, convo.userId);
+  nameDiv.textContent = displayName;
+  await appendVerifiedBadge(nameDiv, otherUserId);
 
-  li.innerHTML = `
-    <div class="conversation-avatar">${initial}</div>
-    <div class="conversation-info">
-      <div class="conversation-top">
-      </div>
-      <div class="conversation-bottom">
-        <div class="conversation-preview">${convo.lastMessage || 'Start a conversation'}</div>
-        ${convo.unreadCount>0?`<div class="conversation-unread">${convo.unreadCount}</div>`:''}
-      </div>
-    </div>
-  `;
-  li.querySelector('.conversation-top').appendChild(nameDiv);
-
+  const { lastMessage, lastTimestamp, unreadCount } = await getLastMessage(conversationId, currentUserId);
+  
   const timeDiv = document.createElement('div');
   timeDiv.className = 'conversation-time';
-  timeDiv.textContent = formatTime(convo.timestamp);
-  li.querySelector('.conversation-top').appendChild(timeDiv);
+  timeDiv.textContent = formatTime(lastTimestamp);
+
+  topDiv.appendChild(nameDiv);
+  topDiv.appendChild(timeDiv);
+
+  const bottomDiv = document.createElement('div');
+  bottomDiv.className = 'conversation-bottom';
+
+  const previewDiv = document.createElement('div');
+  previewDiv.className = 'conversation-preview';
+  previewDiv.textContent = lastMessage;
+
+  bottomDiv.appendChild(previewDiv);
+
+  if (unreadCount > 0) {
+    const unreadDiv = document.createElement('div');
+    unreadDiv.className = 'conversation-unread';
+    unreadDiv.textContent = unreadCount;
+    bottomDiv.appendChild(unreadDiv);
+  }
+
+  infoDiv.appendChild(topDiv);
+  infoDiv.appendChild(bottomDiv);
+  
+  li.appendChild(avatarDiv);
+  li.appendChild(infoDiv);
 
   li.addEventListener('click', () => {
-    window.location.href = `convo.html?userId=${convo.userId}`;
+    window.location.href = `convo.html?userId=${otherUserId}`;
   });
+  
   return li;
 }
 
-function loadConversations(userId) {
-  const userConvosRef = ref(db, `users/${userId}/conversations`);
-  onValue(userConvosRef, snapshot => {
+async function loadConversations(userId) {
+  const conversationsRef = ref(db, 'conversations');
+  onValue(conversationsRef, async (snapshot) => {
     loaderOverlay.style.display = 'flex';
+    
     if (!snapshot.exists()) {
       conversationsList.innerHTML = `
         <div class="empty-state">
@@ -161,26 +244,62 @@ function loadConversations(userId) {
     }
 
     const conversations = [];
-    snapshot.forEach(childSnap => {
-      const convo = childSnap.val();
-      conversations.push({
-        userId: convo.otherUserId,
-        name: convo.otherUserName,
-        lastMessage: convo.lastMessage,
-        timestamp: convo.lastMessageTimestamp,
-        unreadCount: convo.unreadCount || 0
-      });
+    const promises = [];
+    snapshot.forEach(conversationSnap => {
+      const conversationId = conversationSnap.key;
+      const userIds = conversationId.split('_');
+      
+      if (userIds.includes(userId)) {
+        const otherUserId = userIds.find(id => id !== userId);
+        promises.push(
+          getLastMessage(conversationId, userId).then(({ lastTimestamp }) => {
+            conversations.push({
+              conversationId,
+              otherUserId,
+              lastTimestamp: lastTimestamp || 0
+            });
+          })
+        );
+      }
     });
 
-    conversations.sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
+    await Promise.all(promises);
+
+    if (conversations.length === 0) {
+      conversationsList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-comments"></i>
+          <h2>No Messages Yet</h2>
+          <p>Tap the <i class="fas fa-comment" style="font-size:20px;"></i> button below to start a conversation</p>
+        </div>
+      `;
+      loaderOverlay.style.display = 'none';
+      return;
+    }
+
+    conversations.sort((a, b) => b.lastTimestamp - a.lastTimestamp);
 
     const ul = document.createElement('ul');
     ul.className = 'conversation-list';
-    conversations.forEach(convo => ul.appendChild(createConversationElement(convo)));
+    
+    for (const convo of conversations) {
+      const convoElement = await createConversationElement(convo.conversationId, convo.otherUserId, userId);
+      ul.appendChild(convoElement);
+    }
 
     conversationsList.innerHTML = '';
     conversationsList.appendChild(ul);
     loaderOverlay.style.display = 'none';
+  }, (error) => {
+    console.error("Error loading conversations:", error);
+    loaderOverlay.style.display = 'none';
+    conversationsList.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h2>Error Loading Conversations</h2>
+        <p>Please try again later</p>
+      </div>
+    `;
   });
 }
 
@@ -199,5 +318,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
 </body>
 </html>
