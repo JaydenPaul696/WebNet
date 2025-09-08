@@ -20,7 +20,8 @@
     .conversation-list{list-style:none;padding:0;margin:0;}
     .conversation{display:flex;align-items:center;padding:12px 15px;border-bottom:1px solid #252525;cursor:pointer;transition:background-color 0.2s;}
     .conversation:hover{background-color:#1e1e1e;}
-    .conversation-avatar{width:50px;height:50px;border-radius:50%;background:#3247e7;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:15px;flex-shrink:0;}
+    .conversation-avatar{width:50px;height:50px;border-radius:50%;background:#3247e7;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:15px;flex-shrink:0;overflow:hidden;}
+    .conversation-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
     .conversation-info{flex:1;min-width:0;}
     .conversation-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
     .conversation-name{font-weight:bold;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}
@@ -86,7 +87,6 @@ const db = getDatabase(app);
 const conversationsList = document.getElementById('conversationsList');
 const loaderOverlay = document.getElementById('loaderOverlay');
 
-// Helper to append verified badge
 async function appendVerifiedBadge(element, uid) {
   try {
     const snap = await get(ref(db, `users/${uid}/verified`));
@@ -118,22 +118,18 @@ async function getLastMessage(conversationId, currentUserId) {
   try {
     const messagesRef = ref(db, `conversations/${conversationId}/messages`);
     const messagesQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
-    const snapshot = await get(messagesRef); // Fetch all messages for unread count
+    const snapshot = await get(messagesRef);
     let lastMessage = 'Start a conversation';
     let lastTimestamp = 0;
     let unreadCount = 0;
 
     if (snapshot.exists()) {
-      // Count unread messages (sent by other user, read: false)
       snapshot.forEach(child => {
         const messageData = child.val();
         if (messageData.senderId !== currentUserId && !messageData.read) {
           unreadCount++;
         }
       });
-      console.log(`Conversation ${conversationId}: ${unreadCount} unread messages`); // Debug log
-
-      // Get the last message
       const lastMessageSnapshot = await get(messagesQuery);
       if (lastMessageSnapshot.exists()) {
         lastMessageSnapshot.forEach(child => {
@@ -166,6 +162,17 @@ async function getUserDisplayName(uid) {
   return 'Unknown';
 }
 
+// NEW: Get user profile picture
+async function getUserPFP(uid) {
+  try {
+    const snap = await get(ref(db, `users/${uid}/pfp`));
+    if (snap.exists()) return snap.val();
+  } catch (err) {
+    console.error("Error fetching user pfp:", err);
+  }
+  return null;
+}
+
 async function createConversationElement(conversationId, otherUserId, currentUserId) {
   const li = document.createElement('li');
   li.className = 'conversation';
@@ -175,7 +182,15 @@ async function createConversationElement(conversationId, otherUserId, currentUse
 
   const avatarDiv = document.createElement('div');
   avatarDiv.className = 'conversation-avatar';
-  avatarDiv.textContent = initial;
+
+  const pfpUrl = await getUserPFP(otherUserId);
+  if (pfpUrl) {
+    const img = document.createElement('img');
+    img.src = pfpUrl;
+    avatarDiv.appendChild(img);
+  } else {
+    avatarDiv.textContent = initial;
+  }
 
   const infoDiv = document.createElement('div');
   infoDiv.className = 'conversation-info';

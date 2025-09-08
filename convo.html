@@ -10,10 +10,13 @@
     body { font-family: Arial, sans-serif; background:#121212; color:#eee; height:100vh; display:flex; flex-direction:column; }
     header { background:#181818; padding:15px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #333; position:sticky; top:0; z-index:100; }
     .back-btn { color:#0a84ff; font-size:1.2em; cursor:pointer; background:none; border:none; }
-    .header-info { flex:1; }
+    .header-info { flex:1; display:flex; flex-direction:column; }
+    .recipient-top { display:flex; align-items:center; gap:10px; }
+    .recipient-info { display:flex; flex-direction:column; }
+    .recipient-pfp { width:40px; height:40px; border-radius:50%; background:#2a2a2a; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#fff; font-size:0.9em; }
     .recipient-name { font-weight:bold; font-size:1.1em; display:flex; align-items:center; gap:5px; }
     .recipient-name i { color:#0a84ff; font-size:0.9em; }
-    .recipient-status { font-size:0.8em; color:#0a84ff; }
+    .recipient-status { font-size:0.8em; color:#0a84ff; margin-top:2px; }
     .header-actions { display:flex; gap:15px; }
     .header-actions button { background:none; border:none; color:#eee; font-size:1.1em; cursor:pointer; }
     .messages-container { flex:1; overflow-y:auto; padding:15px; padding-bottom:90px; display:flex; flex-direction:column; gap:10px; }
@@ -40,8 +43,13 @@
     <i class="fas fa-arrow-left"></i>
   </button>
   <div class="header-info">
-    <div class="recipient-name" id="recipientName">Loading...</div>
-    <div class="recipient-status" id="recipientStatus">Online</div>
+   <div class="recipient-top">
+     <div id="recipientPfp" class="recipient-pfp"></div>
+     <div class="recipient-info">
+       <div class="recipient-name" id="recipientName">Loading...</div>
+       <div class="recipient-status" id="recipientStatus">Online</div>
+     </div>
+   </div>
   </div>
   <div class="header-actions">
     <button onclick="callUser()"><i class="fas fa-phone"></i></button>
@@ -65,7 +73,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-  import { getDatabase, ref, push, onValue, serverTimestamp, get, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, push, onValue, get, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -89,6 +97,7 @@
   const recipientId = urlParams.get('userId');
 
   const recipientNameElem = document.getElementById('recipientName');
+  const recipientPfpElem = document.getElementById('recipientPfp');
   const recipientStatusElem = document.getElementById('recipientStatus');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('messageInput');
@@ -98,7 +107,7 @@
   window.goBack = () => window.history.back();
   window.callUser = () => alert('Voice call feature coming soon!');
   window.videoCall = () => alert('Video call feature coming soon!');
-  window.showProfile = () => { if(recipientUser) window.location.href=`profile.html?userId=${recipientUser.uid}`; }
+  window.showProfile = () => { if(recipientId) window.location.href = `profile.html?userId=${recipientId}`; else alert("User profile not available"); };
 
   messageInput.addEventListener('input', () => {
     sendBtn.disabled = messageInput.value.trim() === '';
@@ -107,9 +116,7 @@
     }
   });
 
-  messageInput.addEventListener('keypress', (e) => {
-    if(e.key === 'Enter' && !sendBtn.disabled) sendMessage();
-  });
+  messageInput.addEventListener('keypress', e => { if(e.key==='Enter' && !sendBtn.disabled) sendMessage(); });
 
   async function sendMessage() {
     const messageText = messageInput.value.trim();
@@ -119,85 +126,79 @@
       await push(ref(db, `conversations/${conversationId}/messages`), {
         senderId: currentUser.uid,
         text: messageText,
-        timestamp: serverTimestamp(),
+        timestamp: Date.now(),
         read: false
       });
       messageInput.value = '';
       sendBtn.disabled = true;
       await update(ref(db, `users/${currentUser.uid}/typing`), { [conversationId]: false });
-    } catch(err) {
-      console.error("Error sending message:", err);
-      sendBtn.disabled = false;
-    }
+    } catch(err) { console.error(err); sendBtn.disabled=false; }
   }
 
-  function formatMessageTime(ts) {
-    if(!ts) return '';
-    return new Date(ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-  }
-
-  function showMessage(message) {
-    const isSent = message.senderId === currentUser.uid;
-    const msgElem = document.createElement('div');
-    msgElem.className = `message ${isSent?'sent':'received'}`;
-    msgElem.innerHTML = `<div class="message-text">${message.text}</div><div class="message-time">${formatMessageTime(message.timestamp)}</div>`;
-    messagesContainer.appendChild(msgElem);
+  function formatMessageTime(ts){ return ts?new Date(ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }):''; }
+  function showMessage(msg){ 
+    const isSent = msg.senderId === currentUser.uid;
+    const elem = document.createElement('div');
+    elem.className = `message ${isSent?'sent':'received'}`;
+    elem.innerHTML = `<div class="message-text">${msg.text}</div><div class="message-time">${formatMessageTime(msg.timestamp)}</div>`;
+    messagesContainer.appendChild(elem);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
-  async function markMessagesAsRead(conversationId, currentUserId) {
-    try {
-      const messagesRef = ref(db, `conversations/${conversationId}/messages`);
-      const snapshot = await get(messagesRef);
-      if (snapshot.exists()) {
-        const updates = {};
-        snapshot.forEach(child => {
-          const message = child.val();
-          if (message.senderId !== currentUserId && !message.read) {
-            updates[`${child.key}/read`] = true;
-            console.log(`Marking message ${child.key} as read`);
-          }
-        });
-        if (Object.keys(updates).length > 0) {
-          await update(ref(db, `conversations/${conversationId}/messages`), updates);
-          console.log(`Updated ${Object.keys(updates).length} messages to read`);
-        }
-      }
-    } catch (error) {
-      console.error("Error marking messages as read:", error);
+  async function markMessagesAsRead(convId, uid){
+    const messagesRef = ref(db, `conversations/${convId}/messages`);
+    const snapshot = await get(messagesRef);
+    if(snapshot.exists()){
+      const updates = {};
+      snapshot.forEach(c=>{
+        const m = c.val();
+        if(m.senderId!==uid && !m.read) updates[`${c.key}/read`] = true;
+      });
+      if(Object.keys(updates).length>0) await update(ref(db, `conversations/${convId}/messages`), updates);
     }
   }
 
-  onAuthStateChanged(auth, async (user) => {
-    if(!user){ window.location.href="index.html"; return; }
-    currentUser = user;
-    if(!recipientId){ messagesContainer.innerHTML = '<div class="message-date">No user selected</div>'; return; }
+  function setRecipientAvatar(data){
+    if(data.pfp){
+      recipientPfpElem.style.background = `url(${data.pfp}) center/cover`;
+      recipientPfpElem.textContent = '';
+    } else {
+      recipientPfpElem.style.background = '#2a2a2a';
+      const name = data.username || data.email?.split('@')[0] || 'U';
+      const initials = name.split(' ').map(n=>n[0].toUpperCase()).join('').slice(0,2);
+      recipientPfpElem.textContent = initials;
+    }
+  }
+
+  onAuthStateChanged(auth, async user=>{
+    if(!user) return;
+    currentUser=user;
+    if(!recipientId){ messagesContainer.innerHTML='<div class="message-date">No user selected</div>'; return; }
 
     conversationId = [currentUser.uid, recipientId].sort().join('_');
 
     const recipientRef = ref(db, `users/${recipientId}`);
-    const recipientSnapshot = await get(recipientRef);
-
-    if(recipientSnapshot.exists()) {
-      const data = recipientSnapshot.val();
+    onValue(recipientRef, snap=>{
+      if(!snap.exists()) return;
+      const data = snap.val();
       recipientUser = { uid: recipientId, ...data };
-      recipientNameElem.textContent = data.username || data.email.split('@')[0];
+      setRecipientAvatar(data);
+
+      recipientNameElem.textContent = data.username || data.email?.split('@')[0] || "Unknown";
       if(data.verified) recipientNameElem.innerHTML += ' <i class="fas fa-circle-check"></i>';
 
       const statusRef = ref(db, `users/${recipientId}/status`);
-      onValue(statusRef, snap => { recipientStatusElem.textContent = snap.val()?'Online':'Offline'; });
+      onValue(statusRef, s=> recipientStatusElem.textContent = s.val()?'Online':'Offline');
 
       const typingRef = ref(db, `users/${recipientId}/typing/${conversationId}`);
-      onValue(typingRef, snap => { typingIndicator.style.display = snap.val()?'block':'none'; });
-    } else {
-      recipientUser = { uid: recipientId };
-    }
+      onValue(typingRef, t=> typingIndicator.style.display = t.val()?'block':'none');
+    });
 
     const messagesRef = ref(db, `conversations/${conversationId}/messages`);
-    onValue(messagesRef, snapshot => {
-      messagesContainer.innerHTML = '';
-      if(!snapshot.exists()) messagesContainer.innerHTML = '<div class="message-date">Start a conversation</div>';
-      else snapshot.forEach(child => showMessage({id:child.key, ...child.val()}));
+    onValue(messagesRef, snapshot=>{
+      messagesContainer.innerHTML='';
+      if(!snapshot.exists()) messagesContainer.innerHTML='<div class="message-date">Start a conversation</div>';
+      else snapshot.forEach(c=>showMessage({id:c.key,...c.val()}));
     });
 
     await markMessagesAsRead(conversationId, currentUser.uid);

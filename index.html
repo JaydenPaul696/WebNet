@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <link rel="apple-touch-icon" sizes="180x180" href="icons/dark1.png">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/dark1.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/dark1.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/dark1.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/dark1.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css">
@@ -13,14 +13,13 @@
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 
-  <!-- Apple splash screen icons (optional but dope) -->
+  <!-- Apple splash screen icons -->
   <link rel="apple-touch-icon" href="icons/icon-dark.png" media="(prefers-color-scheme: dark)">
   <link rel="apple-touch-icon" href="icons/icon-light.png" media="(prefers-color-scheme: light)">
-  
 
   <style>
     body {
-      background: #121212; /* Default dark mode */
+      background: #121212;
       color: white;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
@@ -29,6 +28,7 @@
       height: 100vh;
       text-align: center;
       flex-direction: column;
+      position: relative;
     }
 
     h1 {
@@ -40,27 +40,57 @@
       font-size: 18px;
       color: #ccc;
     }
+
+   
+.profile-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 36px;
+  background: #2a2a2a;
+  color: #fff;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.loader {
+  border: 4px solid #2a2a2a; /* same as background */
+  border-top: 4px solid #0a84ff; /* spinner color */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+    .credit {
+      position: absolute;
+      bottom: 10px;
+      font-style: italic;
+      color: #888;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
-  <img src="">
-  <img src="icons/dark1.png" class="profile-pic">
-
-<style>
-  .profile-pic {
-    width: 100px;   /* or % like 50% */
-    height: 100px;  /* optional */
-    object-fit: cover; /* crops nicely instead of stretching */
-    border-radius: 50%; /* makes it round */
-  }
-</style>
+  <div id="profilePic" class="profile-pic"><div class="loader"></div></div>
   <h1 id="welcomeMsg">WebNet</h1>
   <p>Loading...</p>
+  <div class="credit">By Vortex Games</div>
 
-  <!-- Firebase Redirection Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -74,19 +104,48 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById("welcomeMsg").textContent =
-          `WELCOME ${user.displayName || user.email.split("@")[0]}!`;
+    const profilePicElem = document.getElementById('profilePic');
+    const welcomeMsgElem = document.getElementById('welcomeMsg');
 
-        setTimeout(() => {
-          window.location.href = "home.html";
-        }, 3000);
-      } else {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
         window.location.href = "login.html";
+        return;
       }
+
+      const uid = user.uid;
+      const userRef = ref(db, `users/${uid}`);
+      const snapshot = await get(userRef);
+
+      let displayName = user.displayName || user.email.split("@")[0];
+      let pfpUrl = null;
+
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        displayName = data.username || displayName;
+        pfpUrl = data.pfp || null;
+      }
+
+      welcomeMsgElem.textContent = `WELCOME ${displayName.toUpperCase()}!`;
+
+      // Set profile pic
+      // Set profile pic
+    if (pfpUrl) {
+      profilePicElem.style.backgroundImage = `url('${pfpUrl}')`;
+      profilePicElem.style.backgroundSize = 'cover';
+      profilePicElem.innerHTML = ''; // remove loader
+    } else {
+      const initials = displayName.split(' ').map(n => n[0].toUpperCase()).join('').slice(0, 2);
+      profilePicElem.textContent = initials || 'U'; // remove loader
+}
+
+      setTimeout(() => {
+        window.location.href = "home.html";
+      }, 3000);
     });
+  i
   </script>
 </body>
 </html>

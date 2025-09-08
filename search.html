@@ -11,11 +11,7 @@
   <title>Search - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: #121212;
@@ -44,12 +40,7 @@
       border: none;
       padding: 10px;
     }
-    .header-title {
-      flex: 1;
-      font-weight: bold;
-      font-size: 1.1em;
-      text-align: center;
-    }
+    .header-title { flex: 1; font-weight: bold; font-size: 1.1em; text-align: center; }
     .search-container {
       padding: 12px 15px;
       background: #181818;
@@ -58,191 +49,73 @@
       top: 48px;
       z-index: 99;
     }
-    .search-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
+    .search-wrapper { position: relative; display: flex; align-items: center; }
     .search-input {
-      width: 100%;
-      padding: 10px 40px 10px 15px;
-      border-radius: 20px;
-      border: none;
-      background: #2a2a2a;
-      color: #eee;
-      outline: none;
-      font-size: 1em;
+      width: 100%; padding: 10px 40px 10px 15px; border-radius: 20px; border: none;
+      background: #2a2a2a; color: #eee; outline: none; font-size: 1em;
     }
-    .search-input:focus {
-      background: #333;
-    }
-    .search-input::placeholder {
-      color: #888;
-    }
+    .search-input:focus { background: #333; }
+    .search-input::placeholder { color: #888; }
     .clear-btn {
-      position: absolute;
-      right: 10px;
-      background: none;
-      border: none;
-      color: #888;
-      font-size: 1.2em;
-      cursor: pointer;
-      display: none;
-      padding: 10px;
+      position: absolute; right: 10px; background: none; border: none; color: #888;
+      font-size: 1.2em; cursor: pointer; display: none; padding: 10px;
     }
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding-bottom: 70px; /* Space for fixed navbar */
-    }
-    .users-list {
-      list-style: none;
-      padding: 0;
-    }
+    main { flex: 1; overflow-y: auto; padding-bottom: 70px; }
+    .users-list { list-style: none; padding: 0; }
     .user-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 15px;
-      border-bottom: 1px solid #252525;
-      cursor: pointer;
+      display: flex; align-items: center; padding: 12px 15px;
+      border-bottom: 1px solid #252525; cursor: pointer;
       transition: background-color 0.2s;
     }
-    .user-item:hover {
-      background-color: #1e1e1e;
-    }
+    .user-item:hover { background-color: #1e1e1e; }
     .user-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: #3247e7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2em;
-      margin-right: 15px;
-      flex-shrink: 0;
+      width: 50px; height: 50px; border-radius: 50%; margin-right: 15px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      background: #3247e7; color: #fff; font-size: 1.2em; overflow: hidden;
     }
-    .user-info {
-      flex: 1;
-      min-width: 0;
-    }
+    .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .user-info { flex: 1; min-width: 0; }
     .user-name {
-      font-weight: bold;
-      font-size: 1em;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 3px;
+      font-weight: bold; font-size: 1em; display: flex;
+      align-items: center; gap: 6px; margin-bottom: 3px;
     }
     .user-username {
-      font-size: 0.85em;
-      color: #888;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.85em; color: #888; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
     }
-    .user-status {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #444;
-      margin-left: 10px;
-    }
-    .user-status.online {
-      background: #25D366;
-    }
+    .user-status { width: 10px; height: 10px; border-radius: 50%; background: #444; margin-left: 10px; }
+    .user-status.online { background: #25D366; }
     .chat-btn {
-      color: #0a84ff;
-      font-size: 1.2em;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 10px;
-      min-width: 44px;
-      min-height: 44px;
+      color: #0a84ff; font-size: 1.2em; cursor: pointer;
+      background: none; border: none; padding: 10px; min-width: 44px; min-height: 44px;
     }
     .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 60vh;
-      text-align: center;
-      padding: 20px;
-      color: #888;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 60vh; text-align: center; padding: 20px; color: #888;
     }
-    .empty-state i {
-      font-size: 3.5em;
-      margin-bottom: 15px;
-      color: #444;
-    }
-    .empty-state h2 {
-      font-size: 1.2em;
-      margin: 0 0 10px;
-      color: #eee;
-    }
-    .empty-state p {
-      font-size: 0.9em;
-      line-height: 1.5;
-      max-width: 80%;
-    }
-    .loader {
-      text-align: center;
-      padding: 20px;
-      color: #888;
-      font-style: italic;
-    }
-    .loader i {
-      margin-right: 8px;
-      color: #0a84ff;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    .empty-state i { font-size: 3.5em; margin-bottom: 15px; color: #444; }
+    .empty-state h2 { font-size: 1.2em; margin: 0 0 10px; color: #eee; }
+    .empty-state p { font-size: 0.9em; line-height: 1.5; max-width: 80%; }
+    .loader { text-align: center; padding: 20px; color: #888; font-style: italic; }
+    .loader i { margin-right: 8px; color: #0a84ff; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     nav {
-      display: flex;
-      justify-content: space-around;
-      background: #181818;
-      padding: 10px 0;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      border-top: 1px solid #333;
-      z-index: 100;
+      display: flex; justify-content: space-around; background: #181818;
+      padding: 10px 0; position: fixed; bottom: 0; width: 100%;
+      border-top: 1px solid #333; z-index: 100;
     }
     nav a {
-      color: #eee;
-      font-size: 1.4em;
-      text-decoration: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      min-width: 44px;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: #eee; font-size: 1.4em; text-decoration: none;
+      padding: 10px 15px; border-radius: 8px; min-width: 44px; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
       transition: background-color 0.2s, transform 0.1s;
     }
-    nav a.active {
-      color: #0a84ff;
-      background: #1e1e1e;
-    }
-    nav a:active {
-      transform: scale(0.95);
-    }
-    .verified-badge {
-      color: #0a84ff;
-      font-size: 0.85em;
-    }
+    nav a.active { color: #0a84ff; background: #1e1e1e; }
+    nav a:active { transform: scale(0.95); }
+    .verified-badge { color: #0a84ff; font-size: 0.85em; }
     @media (min-width: 768px) {
-      .search-container {
-        padding: 15px 20%;
-      }
-      .user-item {
-        padding: 15px 20%;
-      }
+      .search-container { padding: 15px 20%; }
+      .user-item { padding: 15px 20%; }
     }
   </style>
 </head>
@@ -255,7 +128,7 @@
 
 <div class="search-container">
   <div class="search-wrapper">
-    <input type="text" class="search-input" id="searchInput" placeholder="Search users..." autocomplete="off" aria-label="Search users">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search users..." autocomplete="off">
     <button class="clear-btn" id="clearBtn"><i class="fas fa-times"></i></button>
   </div>
 </div>
@@ -302,24 +175,33 @@
   const clearBtn = document.getElementById("clearBtn");
   const usersList = document.getElementById("usersList");
 
-  // Back button
   window.goBack = () => window.history.back();
 
-  // Create user item
   function createUserItem(userData, userId) {
     if (userId === currentUser?.uid) return null;
     const userItem = document.createElement('li');
     userItem.className = 'user-item';
+
     const userName = userData.realName || userData.username || userData.email?.split('@')[0] || 'Unknown';
     const userInitial = userName.charAt(0).toUpperCase();
+
     userItem.innerHTML = `
-      <div class="user-avatar">${userData.profilePicture ? `<img src="${userData.profilePicture}" class="user-avatar" alt="${userName}">` : userInitial}</div>
+      <div class="user-avatar">
+        ${userData.pfp
+          ? `<img src="${userData.pfp}" alt="${userName}">`
+          : userInitial}
+      </div>
       <div class="user-info">
-        <div class="user-name">${userName}${userData.verified ? ' <i class="fas fa-circle-check verified-badge"></i>' : ''}<div class="user-status ${userData.status ? 'online' : ''}"></div></div>
+        <div class="user-name">
+          ${userName}
+          ${userData.verified ? '<i class="fas fa-circle-check verified-badge"></i>' : ''}
+          <div class="user-status ${userData.status ? 'online' : ''}"></div>
+        </div>
         <div class="user-username">@${userData.username || 'unknown'}</div>
       </div>
-      <button class="chat-btn" title="Start Chat" aria-label="Start chat with ${userName}"><i class="fas fa-comment"></i></button>
+      <button class="chat-btn" title="Start Chat"><i class="fas fa-comment"></i></button>
     `;
+
     userItem.addEventListener('click', (e) => {
       if (!e.target.closest('.chat-btn')) {
         window.location.href = `profile.html?uid=${userId}`;
@@ -331,7 +213,6 @@
     return userItem;
   }
 
-  // Display users
   function displayUsers(users) {
     usersList.innerHTML = '';
     if (users.length === 0) {
@@ -353,7 +234,6 @@
     usersList.appendChild(ul);
   }
 
-  // Filter users
   function filterUsers(searchTerm) {
     clearBtn.style.display = searchTerm ? 'block' : 'none';
     if (!searchTerm) {
@@ -378,34 +258,25 @@
     displayUsers(matches);
   }
 
-  // Load users
   function loadUsersRealtime() {
     const usersRef = ref(db, 'users');
     onValue(usersRef, (snapshot) => {
-      console.log("Users snapshot updated:", snapshot.val());
       usersCache = snapshot.exists() ? snapshot.val() : {};
-      const searchTerm = searchInput.value.trim();
-      filterUsers(searchTerm);
-    }, (error) => {
-      console.error("Error loading users:", error);
-      displayUsers([]);
+      filterUsers(searchInput.value.trim());
     });
   }
 
-  // Auth check
   onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "index.html"; return; }
     currentUser = user;
     loadUsersRealtime();
   });
 
-  // Search input with debounce
   searchInput.addEventListener('input', (e) => {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => filterUsers(e.target.value.trim()), 300);
   });
 
-  // Clear search
   clearBtn.addEventListener('click', () => {
     searchInput.value = '';
     clearBtn.style.display = 'none';
@@ -413,7 +284,6 @@
     filterUsers('');
   });
 
-  // Handle mobile keyboard
   window.visualViewport.addEventListener('resize', () => {
     document.body.style.height = `${window.visualViewport.height}px`;
   });

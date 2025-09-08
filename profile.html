@@ -50,7 +50,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 5; /* stays under header/nav */
+      z-index: 5;
     }
     .loader {
       border: 5px solid #333;
@@ -69,11 +69,28 @@
       padding: 20px;
       text-align: center;
     }
-    .avatar-placeholder {
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2a2a2a;
+      overflow: hidden;
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .avatar i {
       font-size: 80px;
       color: #666;
-      margin-bottom: 10px;
     }
+
     .user-info h2 {
       font-size: 20px;
       margin: 5px 0;
@@ -165,10 +182,7 @@
       z-index: 15;
     }
     .fab:hover { background: #006ad4; }
-  a {
-    text-decoration: none;
-    color: white;
-  }
+    a { text-decoration: none; color: white; }
   </style>
 </head>
 <body>
@@ -187,7 +201,11 @@
     <p style="margin-top:15px;color:#bbb;">Loading profile...</p>
   </div>
 
-  <div class="avatar-placeholder"><i class="fas fa-user-circle"></i></div>
+  <!-- Avatar -->
+  <div class="avatar" id="avatarContainer">
+    <i class="fas fa-user-circle"></i>
+  </div>
+
   <div class="user-info">
     <h2 id="realName">Loading...</h2>
     <p id="username">@username</p>
@@ -202,7 +220,7 @@
   <button id="logoutBtn" class="logout-btn" style="display:none;">Sign out</button>
 </div>
 
-<!-- FAB to create new post -->
+<!-- FAB -->
 <a href="post.html" class="fab"><i class="fas fa-earth"></i></a>
 
 <nav>
@@ -243,6 +261,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 const backBtn = document.getElementById("backBtn");
 const headerTitle = document.getElementById("headerTitle");
 const settingsBtn = document.getElementById("settingsBtn");
+const avatarContainer = document.getElementById("avatarContainer");
 
 const params = new URLSearchParams(window.location.search);
 const profileUidParam = params.get("uid");
@@ -287,7 +306,7 @@ onAuthStateChanged(auth, async (user) => {
           const newNotifRef = push(notifRef);
           await set(newNotifRef, {
             type: "follow",
-            message: `${me.realName || "Someone"} (@${me.username || "unknown"}) started following you`,
+            message: `${me.realName || "Someone"} (${me.username || "unknown"}) started following you`,
             from: myUid,
             timestamp: Date.now(),
             read: false
@@ -302,7 +321,6 @@ onAuthStateChanged(auth, async (user) => {
     logoutBtn.style.display = "inline-block";
     followBtn.style.display = "none";
 
-    // 🔹 Fix sign out button
     logoutBtn.onclick = async () => {
       await signOut(auth);
       window.location.href = "index.html";
@@ -324,6 +342,13 @@ onAuthStateChanged(auth, async (user) => {
       usernameElem.textContent = data.username ? `@${data.username}` : "@username";
       emailElem.textContent = data.email || "";
       bioElem.textContent = data.bio || "No bio set yet.";
+
+      // Load PFP if available (this feature is hard asf!)
+      if (data.pfp) {
+        avatarContainer.innerHTML = `<img src="${data.pfp}" alt="Profile Picture">`;
+      } else {
+        avatarContainer.innerHTML = `<i class="fas fa-user-circle"></i>`;
+      }
     }
   } catch (e) {
     console.error("Error loading profile:", e);

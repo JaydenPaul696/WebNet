@@ -109,6 +109,10 @@
       font-size: 40px;
       margin: 0 auto 15px;
       color: white;
+      cursor: pointer;                 /* tap to upload */
+      background-size: cover;          /* show uploaded image */
+      background-position: center;
+      overflow: hidden;                /* keep circle */
     }
     
     .profile-header h2 {
@@ -290,6 +294,13 @@
       color: #ffcc00;
       margin-bottom: 10px;
     }
+
+    /* Tiny helper text under avatar (optional but helpful) */
+    .change-pfp-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: -8px;
+    }
   </style>
 </head>
 <body>
@@ -309,9 +320,12 @@
 
     <div id="content" style="display: none;">
       <div class="profile-header">
-        <div class="avatar">
+        <div class="avatar" id="avatar">
           <i class="fas fa-user"></i>
         </div>
+        <div class="change-pfp-hint">Tap photo to change</div>
+        <!-- Hidden file input for pfp upload -->
+        <input type="file" id="pfpInput" accept="image/*" style="display:none" />
         <h2 id="profileName">User Name</h2>
         <p id="profileEmail">user@example.com</p>
       </div>
@@ -390,6 +404,9 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+    // ==== ImgBB ====
+    const IMGBB_API_KEY = "a3e66a4a9fce0c8ef8dd718160fef5f3";
+
     // DOM Elements
     const loaderWrap = document.getElementById("loaderWrap");
     const content = document.getElementById("content");
@@ -403,6 +420,8 @@
     const recoverDataBtn = document.getElementById("recoverData");
     const toast = document.getElementById("toast");
     const toastMessage = document.getElementById("toastMessage");
+    const pfpInput = document.getElementById("pfpInput");
+    const avatarEl = document.getElementById("avatar");
 
     // Show toast notification
     function showToast(message, type = "success") {
@@ -414,6 +433,89 @@
         toast.classList.remove("show");
       }, 3000);
     }
+
+    // Helper: set avatar from URL (or reset to icon)
+    function setAvatar(url) {
+      if (url) {
+        avatarEl.style.backgroundImage = `url('${url}')`;
+        avatarEl.innerHTML = ""; // remove icon
+      } else {
+        avatarEl.style.backgroundImage = "none";
+        avatarEl.innerHTML = '<i class="fas fa-user"></i>';
+      }
+    }
+
+    // Convert File -> base64 (without prefix)
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const res = reader.result;
+          const base64 = typeof res === "string" ? res.split(",")[1] : "";
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Upload to ImgBB, return public URL
+    async function uploadImage(file) {
+      const base64 = await fileToBase64(file);
+      const formData = new FormData();
+      formData.append("key", IMGBB_API_KEY);
+      formData.append("image", base64);
+
+      const resp = await fetch("https://api.imgbb.com/1/upload", {
+        method: "POST",
+        body: formData
+      });
+      const data = await resp.json();
+      if (!data.success) {
+        throw new Error(data?.error?.message || "Image upload failed");
+      }
+      return data.data.url; // public link
+    }
+
+    // Handle avatar click -> open file picker
+    avatarEl.addEventListener("click", () => {
+      pfpInput.click();
+    });
+
+    // Handle file choose -> upload -> save URL to DB (users/{uid}/pfp)
+    pfpInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        showToast("Uploading image...");
+        // optional quick preview while uploading
+        const tempUrl = URL.createObjectURL(file);
+        setAvatar(tempUrl);
+
+        const hostedUrl = await uploadImage(file);
+
+        await update(ref(db, `users/${user.uid}`), {
+          pfp: hostedUrl,
+          updatedAt: Date.now()
+        });
+
+        setAvatar(hostedUrl);
+        showToast("Profile picture updated!");
+      } catch (err) {
+        console.error(err);
+        showToast("Upload failed", "error");
+        // revert to last known state from DB on failure
+        try {
+          const snap = await get(ref(db, `users/${auth.currentUser.uid}/pfp`));
+          setAvatar(snap.val() || null);
+        } catch {}
+      } finally {
+        pfpInput.value = "";
+      }
+    });
 
     // Data recovery function
     async function attemptDataRecovery(user) {
@@ -458,12 +560,15 @@
             // Update profile header
             profileName.textContent = userData.realName || "User Name";
             profileEmail.textContent = userData.email || user.email || "No email";
+
+            // Set avatar if pfp exists
+            setAvatar(userData.pfp || null);
             
             // Hide loader and show content
             loaderWrap.style.display = "none";
             content.style.display = "block";
           } else {
-            // Create initial user data if it doesn't exist - FIXED: Use update instead of set
+            // Create initial user data if it doesn't exist
             const initialData = {
               email: user.email,
               realName: user.displayName || "",
@@ -488,12 +593,11 @@
         });
     }
 
-    // Save profile changes - FIXED: Using update()
+    // Save profile changes
     saveProfileBtn.addEventListener("click", () => {
       const user = auth.currentUser;
       if (!user) return;
       
-      // Only update the specific fields we want to change
       const updates = {
         realName: displayNameInput.value.trim(),
         username: usernameInput.value.trim(),
@@ -501,11 +605,9 @@
         updatedAt: Date.now()
       };
       
-      // Disable button during save
       saveProfileBtn.disabled = true;
       saveProfileBtn.textContent = "Saving...";
       
-      // Use update() instead of set() to only modify specific fields
       update(ref(db, `users/${user.uid}`), updates)
         .then(() => {
           showToast("Profile updated successfully!");
@@ -529,8 +631,6 @@
       if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
         return;
       }
-      
-      // Double confirmation for safety
       if (!confirm("This will permanently delete all your data. Are you absolutely sure?")) {
         return;
       }
@@ -538,12 +638,8 @@
       deleteAccountBtn.disabled = true;
       deleteAccountBtn.textContent = "Deleting...";
       
-      // Delete user data from database first
       remove(ref(db, `users/${user.uid}`))
-        .then(() => {
-          // Then delete the auth account
-          return deleteUser(user);
-        })
+        .then(() => deleteUser(user))
         .then(() => {
           showToast("Account deleted successfully");
           setTimeout(() => {
@@ -562,7 +658,6 @@
     recoverDataBtn.addEventListener("click", () => {
       const user = auth.currentUser;
       if (!user) return;
-      
       attemptDataRecovery(user);
     });
 
@@ -572,7 +667,6 @@
         window.location.href = "index.html";
         return;
       }
-      
       loadUserData(user);
     });
 
