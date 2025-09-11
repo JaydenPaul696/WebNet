@@ -43,11 +43,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      justify-self: center;
     }
     .header-left i {
       cursor: pointer;
       color: #0a84ff;
       font-size: 1.2em;
+      justify-self: center;
     }
     #loaderOverlay {
       position: fixed;
@@ -183,7 +185,7 @@
 <body>
   <header>
     <div class="header-left">
-      <i id="backBtn" class="fas fa-arrow-left" onclick="window.history.back()"></i>
+      <!-- <i id="backBtn" class="fas fa-arrow-left" onclick="window.history.back()"></i> -->
       <span>Banned Account</span>
     </div>
   </header>

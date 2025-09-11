@@ -85,10 +85,9 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-  import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, onValue, update, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
-    // Your config here
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
     authDomain: "webnet2.firebaseapp.com",
     projectId: "webnet2",
@@ -103,57 +102,69 @@
   const db = getDatabase(app);
   const notifContainer = document.getElementById("notifContainer");
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const notifRef = ref(db, `users/${user.uid}/notifications`);
-
-      // Clear container and add pinned notification
-      notifContainer.innerHTML = '';
-      notifContainer.appendChild(
-        createNotif("fas fa-newspaper", "Check out the latest patch notes & updates!", "Pinned", false, true, "patch.html")
-      );
-
-      // Load user notifications
-      onValue(notifRef, (snapshot) => {
-        // Remove only dynamic notifications (keep pinned)
-        const dynamicNotifs = notifContainer.querySelectorAll('.notif-item:not(.notif-pinned), .no-notifs');
-        dynamicNotifs.forEach(node => node.remove());
-
-        if (snapshot.exists()) {
-          const notifs = snapshot.val();
-          const notifArray = Object.entries(notifs).map(([id, notif]) => ({ id, ...notif }));
-          
-          // Sort by timestamp (newest first)
-          notifArray.sort((a, b) => b.timestamp - a.timestamp);
-
-          notifArray.forEach(notif => {
-            let icon = "fas fa-bell";
-            if (notif.type === "follow") icon = "fas fa-user-plus";
-            if (notif.type === "new_post") icon = "fas fa-image";
-            if (notif.type === "update") icon = "fas fa-download";
-
-            const notifEl = createNotif(icon, notif.message, notif.time, notif.read, false, null);
-            
-            // Add click event to mark as read
-            notifEl.addEventListener('click', () => {
-              if (!notif.read) {
-                const notifItemRef = ref(db, `users/${user.uid}/notifications/${notif.id}`);
-                update(notifItemRef, { read: true });
-              }
-            });
-
-            notifContainer.appendChild(notifEl);
-          });
-        } else {
-          const noMsg = document.createElement("p");
-          noMsg.textContent = "No notifications yet.";
-          noMsg.classList.add("no-notifs");
-          notifContainer.appendChild(noMsg);
-        }
-      });
-    } else {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
       window.location.href = "index.html";
+      return;
     }
+
+    // Check ban status only for notifications.html
+    try {
+      const userSnap = await get(ref(db, `users/${user.uid}`));
+      if (userSnap.exists() && userSnap.val().banned) {
+        window.location.href = "banned.html";
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking ban status:", error);
+    }
+
+    const notifRef = ref(db, `users/${user.uid}/notifications`);
+
+    // Clear container and add pinned notification
+    notifContainer.innerHTML = '';
+    notifContainer.appendChild(
+      createNotif("fas fa-newspaper", "Check out the latest patch notes & updates!", "Pinned", false, true, "patch.html")
+    );
+
+    // Load user notifications
+    onValue(notifRef, (snapshot) => {
+      // Remove only dynamic notifications (keep pinned)
+      const dynamicNotifs = notifContainer.querySelectorAll('.notif-item:not(.notif-pinned), .no-notifs');
+      dynamicNotifs.forEach(node => node.remove());
+
+      if (snapshot.exists()) {
+        const notifs = snapshot.val();
+        const notifArray = Object.entries(notifs).map(([id, notif]) => ({ id, ...notif }));
+        
+        // Sort by timestamp (newest first)
+        notifArray.sort((a, b) => b.timestamp - a.timestamp);
+
+        notifArray.forEach(notif => {
+          let icon = "fas fa-bell";
+          if (notif.type === "follow") icon = "fas fa-user-plus";
+          if (notif.type === "new_post") icon = "fas fa-image";
+          if (notif.type === "update") icon = "fas fa-download";
+
+          const notifEl = createNotif(icon, notif.message, notif.time, notif.read, false, null);
+          
+          // Add click event to mark as read
+          notifEl.addEventListener('click', () => {
+            if (!notif.read) {
+              const notifItemRef = ref(db, `users/${user.uid}/notifications/${notif.id}`);
+              update(notifItemRef, { read: true });
+            }
+          });
+
+          notifContainer.appendChild(notifEl);
+        });
+      } else {
+        const noMsg = document.createElement("p");
+        noMsg.textContent = "No notifications yet.";
+        noMsg.classList.add("no-notifs");
+        notifContainer.appendChild(noMsg);
+      }
+    });
   });
 
   function createNotif(icon, message, time, read = false, pinned = false, link = null) {
