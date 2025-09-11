@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a84ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <title>WebNet - Banned</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 120px; /* space for button + navbar */
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #181818;
+      border-bottom: 1px solid #333;
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-left i {
+      cursor: pointer;
+      color: #0a84ff;
+      font-size: 1.2em;
+    }
+    #loaderOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 18, 18, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .loader {
+      border: 5px solid #333;
+      border-top: 5px solid #0a84ff;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .banned-container {
+      position: relative;
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+    }
+    .banned-icon {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 60px;
+    }
+    .user-icon {
+      font-size: 5em;
+      color: #0a84ff;
+    }
+    .ban-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 1.8em;
+      color: #e53935;
+      background: #121212;
+      border-radius: 50%;
+      padding: 3px;
+    }
+    .banned-message h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .banned-message p {
+      font-size: 0.9em;
+      color: #999;
+      max-width: 80%;
+      margin: 0 auto;
+    }
+    /* Full-width contact button */
+    .contact-btn {
+      justify-self: center;
+      position: fixed;
+      bottom: 70px; /* above navbar */
+      left: 0;
+      right: 0;
+      width: 70%;
+      padding: 14px;
+      border: 0.5px solid #006edc;
+      border-radius: 20px;
+      font-size: 1em;
+      cursor: pointer;
+      
+      background: none;
+      color: #fff;
+      transition: background 0.2s;
+      display: none;
+      z-index: 99;
+    }
+    .contact-btn:hover {
+      background: #006edc;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #181818;
+      border-top: 1px solid #333;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 100;
+    }
+    nav a {
+      color: #eee;
+      font-size: 1.4em;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    nav a:hover {
+      color: #0a84ff;
+    }
+    nav a.active {
+      color: #0a84ff;
+      background: #1e1e1e;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    @media (min-width: 768px) {
+      .banned-container {
+        padding: 20px 20%;
+      }
+    }
+  a{
+    color: white;
+    text-decoration: none;
+  }
+    a::hover{
+    color: white;
+    text-decoration: none;
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <i id="backBtn" class="fas fa-arrow-left" onclick="window.history.back()"></i>
+      <span>Banned Account</span>
+    </div>
+  </header>
+  <div class="banned-container" id="bannedContainer">
+    <div id="loaderOverlay">
+      <div class="loader"></div>
+      <p style="margin-top:15px;color:#bbb;">User Banned...</p>
+    </div>
+    <!-- User with ban overlay -->
+    <div class="banned-icon" style="display:none;" id="bannedIcon">
+      <i class="fas fa-user-circle user-icon"></i>
+      <i class="fa-solid fa-circle-xmark ban-overlay"></i>
+    </div>
+    <div class="banned-message" style="display:none;" id="bannedMessage">
+      <h2>Your Account Has Been Banned</h2>
+      <p>Your account is currently restricted due to a violation of WebNet's terms of service. For more information or to appeal, please request a review of your account and we'll review your account within 24 to 48 hours.</p>
+    </div>
+  </div>
+
+  <!-- Full-width Contact Support button -->
+  <a href="rev.html"><button class="contact-btn" id="contactBtn">Request review</button></a>
+
+  <nav>
+    <a href="home.html"><i class="fas fa-comment"></i></a>
+    <a href="search.html"><i class="fas fa-search"></i></a>
+    <a href="notifications.html"><i class="fas fa-bell"></i></a>
+    <a href="profile.html" class="active"><i class="fas fa-user"></i></a>
+  </nav>
+
+<script>
+  // Simulate initial load with loader
+  const loaderOverlay = document.getElementById("loaderOverlay");
+  const bannedMessage = document.getElementById("bannedMessage");
+  const bannedIcon = document.getElementById("bannedIcon");
+  const contactBtn = document.getElementById("contactBtn");
+
+  setTimeout(() => {
+    loaderOverlay.style.display = "none";
+    bannedMessage.style.display = "block";
+    bannedIcon.style.display = "inline-block";
+    contactBtn.style.display = "block";
+  }, 1500);
+</script>
+</body>
+</html>

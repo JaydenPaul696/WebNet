@@ -6,34 +6,189 @@
   <title>Messages - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: Arial, sans-serif; background:#121212; color:#eee; height:100vh; display:flex; flex-direction:column; }
-    header { background:#181818; padding:15px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #333; position:sticky; top:0; z-index:100; }
-    .back-btn { color:#0a84ff; font-size:1.2em; cursor:pointer; background:none; border:none; }
-    .header-info { flex:1; display:flex; flex-direction:column; }
-    .recipient-top { display:flex; align-items:center; gap:10px; }
-    .recipient-info { display:flex; flex-direction:column; }
-    .recipient-pfp { width:40px; height:40px; border-radius:50%; background:#2a2a2a; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#fff; font-size:0.9em; }
-    .recipient-name { font-weight:bold; font-size:1.1em; display:flex; align-items:center; gap:5px; }
-    .recipient-name i { color:#0a84ff; font-size:0.9em; }
-    .recipient-status { font-size:0.8em; color:#0a84ff; margin-top:2px; }
-    .header-actions { display:flex; gap:15px; }
-    .header-actions button { background:none; border:none; color:#eee; font-size:1.1em; cursor:pointer; }
-    .messages-container { flex:1; overflow-y:auto; padding:15px; padding-bottom:90px; display:flex; flex-direction:column; gap:10px; }
-    .message { max-width:70%; padding:12px; border-radius:18px; margin-bottom:5px; position:relative; }
-    .message.sent { background:#0a84ff; color:white; align-self:flex-end; border-bottom-right-radius:5px; }
-    .message.received { background:#2a2a2a; color:#eee; align-self:flex-start; border-bottom-left-radius:5px; }
-    .message-time { font-size:0.7em; opacity:0.7; margin-top:5px; text-align:right; }
-    .message-input-container { position:fixed; bottom:0; left:0; width:100%; padding:15px; background:#181818; border-top:1px solid #333; display:flex; gap:10px; align-items:center; z-index:100; }
-    .message-input { flex:1; padding:12px; border:1px solid #333; border-radius:25px; background:#2a2a2a; color:#eee; outline:none; }
-    .message-input:focus { border-color:#0a84ff; }
-    .send-btn { background:#0a84ff; color:white; border:none; width:45px; height:45px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .send-btn:disabled { background:#333; cursor:not-allowed; }
-    .send-btn:hover:not(:disabled) { background:#0066cc; }
-    .typing-indicator { padding:10px; color:#0a84ff; font-style:italic; font-size:0.9em; align-self:flex-start; display:none; }
-    .message-date { text-align:center; color:#888; font-size:0.8em; margin:15px 0; padding:5px; }
-    a:hover { text-decoration:none; color:red; }
-    a { text-decoration:none; color:red; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #181818;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .back-btn {
+      color: #0a84ff;
+      font-size: 1.2em;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .header-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .recipient-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .recipient-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .recipient-pfp {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      font-size: 0.9em;
+    }
+    .recipient-name {
+      font-weight: bold;
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .recipient-name i {
+      color: #0a84ff;
+      font-size: 0.9em;
+    }
+    .recipient-status {
+      font-size: 0.8em;
+      color: #0a84ff;
+      margin-top: 2px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .header-actions button {
+      background: none;
+      border: none;
+      color: #eee;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      padding-bottom: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message {
+      max-width: 70%;
+      padding: 12px;
+      border-radius: 18px;
+      margin-bottom: 5px;
+      position: relative;
+    }
+    .message.sent {
+      background: #0a84ff;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 5px;
+    }
+    .message.received {
+      background: #2a2a2a;
+      color: #eee;
+      align-self: flex-start;
+      border-bottom-left-radius: 5px;
+    }
+    .message-time {
+      font-size: 0.7em;
+      opacity: 0.7;
+      margin-top: 5px;
+      text-align: right;
+    }
+    .message-input-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px;
+      background: #181818;
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      z-index: 100;
+    }
+    .message-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #333;
+      border-radius: 25px;
+      background: #2a2a2a;
+      color: #eee;
+      outline: none;
+    }
+    .message-input:focus {
+      border-color: #0a84ff;
+    }
+    .send-btn {
+      background: #0a84ff;
+      color: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .send-btn:disabled {
+      background: #333;
+      cursor: not-allowed;
+    }
+    .send-btn:hover:not(:disabled) {
+      background: #0066cc;
+    }
+    .typing-indicator {
+      padding: 10px;
+      color: #0a84ff;
+      font-style: italic;
+      font-size: 0.9em;
+      align-self: flex-start;
+      display: none;
+    }
+    .message-date {
+      text-align: center;
+      color: #888;
+      font-size: 0.8em;
+      margin: 15px 0;
+      padding: 5px;
+    }
+    a:hover { text-decoration: none; color: red; }
+    a { text-decoration: none; color: red; }
+    .verified-icon {
+      color: #0a84ff;
+      font-size: 0.9em;
+    }
+    .banned-icon {
+      color: #e53935; /* Fixed syntax error, set to red */
+      font-size: 0.9em; /* Removed extra colon */
+    }
   </style>
 </head>
 <body>
@@ -43,13 +198,13 @@
     <i class="fas fa-arrow-left"></i>
   </button>
   <div class="header-info">
-   <div class="recipient-top">
-     <div id="recipientPfp" class="recipient-pfp"></div>
-     <div class="recipient-info">
-       <div class="recipient-name" id="recipientName">Loading...</div>
-       <div class="recipient-status" id="recipientStatus">Online</div>
-     </div>
-   </div>
+    <div class="recipient-top">
+      <div id="recipientPfp" class="recipient-pfp"></div>
+      <div class="recipient-info">
+        <div class="recipient-name" id="recipientName">Loading...</div>
+        <div class="recipient-status" id="recipientStatus">Online</div>
+      </div>
+    </div>
   </div>
   <div class="header-actions">
     <button onclick="callUser()"><i class="fas fa-phone"></i></button>
@@ -107,20 +262,25 @@
   window.goBack = () => window.history.back();
   window.callUser = () => alert('Voice call feature coming soon!');
   window.videoCall = () => alert('Video call feature coming soon!');
-  window.showProfile = () => { if(recipientId) window.location.href = `profile.html?userId=${recipientId}`; else alert("User profile not available"); };
+  window.showProfile = () => {
+    if (recipientId) window.location.href = `profile.html?userId=${recipientId}`;
+    else alert("User profile not available");
+  };
 
   messageInput.addEventListener('input', () => {
     sendBtn.disabled = messageInput.value.trim() === '';
-    if(currentUser && conversationId) {
+    if (currentUser && conversationId) {
       update(ref(db, `users/${currentUser.uid}/typing`), { [conversationId]: messageInput.value.trim() !== '' });
     }
   });
 
-  messageInput.addEventListener('keypress', e => { if(e.key==='Enter' && !sendBtn.disabled) sendMessage(); });
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !sendBtn.disabled) sendMessage();
+  });
 
   async function sendMessage() {
     const messageText = messageInput.value.trim();
-    if(!messageText || !conversationId) return;
+    if (!messageText || !conversationId) return;
     sendBtn.disabled = true;
     try {
       await push(ref(db, `conversations/${conversationId}/messages`), {
@@ -132,73 +292,93 @@
       messageInput.value = '';
       sendBtn.disabled = true;
       await update(ref(db, `users/${currentUser.uid}/typing`), { [conversationId]: false });
-    } catch(err) { console.error(err); sendBtn.disabled=false; }
+    } catch (err) {
+      console.error(err);
+      sendBtn.disabled = false;
+    }
   }
 
-  function formatMessageTime(ts){ return ts?new Date(ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }):''; }
-  function showMessage(msg){ 
+  function formatMessageTime(ts) {
+    return ts ? new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+  }
+  function showMessage(msg) {
     const isSent = msg.senderId === currentUser.uid;
     const elem = document.createElement('div');
-    elem.className = `message ${isSent?'sent':'received'}`;
+    elem.className = `message ${isSent ? 'sent' : 'received'}`;
     elem.innerHTML = `<div class="message-text">${msg.text}</div><div class="message-time">${formatMessageTime(msg.timestamp)}</div>`;
     messagesContainer.appendChild(elem);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
-  async function markMessagesAsRead(convId, uid){
+  async function markMessagesAsRead(convId, uid) {
     const messagesRef = ref(db, `conversations/${convId}/messages`);
     const snapshot = await get(messagesRef);
-    if(snapshot.exists()){
+    if (snapshot.exists()) {
       const updates = {};
-      snapshot.forEach(c=>{
+      snapshot.forEach((c) => {
         const m = c.val();
-        if(m.senderId!==uid && !m.read) updates[`${c.key}/read`] = true;
+        if (m.senderId !== uid && !m.read) updates[`${c.key}/read`] = true;
       });
-      if(Object.keys(updates).length>0) await update(ref(db, `conversations/${convId}/messages`), updates);
+      if (Object.keys(updates).length > 0) await update(ref(db, `conversations/${convId}/messages`), updates);
     }
   }
 
-  function setRecipientAvatar(data){
-    if(data.pfp){
+  function setRecipientAvatar(data) {
+    if (data.pfp) {
       recipientPfpElem.style.background = `url(${data.pfp}) center/cover`;
       recipientPfpElem.textContent = '';
     } else {
       recipientPfpElem.style.background = '#2a2a2a';
       const name = data.username || data.email?.split('@')[0] || 'U';
-      const initials = name.split(' ').map(n=>n[0].toUpperCase()).join('').slice(0,2);
+      const initials = name.split(' ').map(n => n[0].toUpperCase()).join('').slice(0, 2);
       recipientPfpElem.textContent = initials;
     }
   }
 
-  onAuthStateChanged(auth, async user=>{
-    if(!user) return;
-    currentUser=user;
-    if(!recipientId){ messagesContainer.innerHTML='<div class="message-date">No user selected</div>'; return; }
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    currentUser = user;
+    if (!recipientId) {
+      messagesContainer.innerHTML = '<div class="message-date">No user selected</div>';
+      return;
+    }
+
+    try {
+      const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+      if (userSnap.exists() && userSnap.val().banned) {
+        window.location.href = 'banned.html';
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking ban status:", error);
+    }
 
     conversationId = [currentUser.uid, recipientId].sort().join('_');
 
     const recipientRef = ref(db, `users/${recipientId}`);
-    onValue(recipientRef, snap=>{
-      if(!snap.exists()) return;
+    onValue(recipientRef, (snap) => {
+      if (!snap.exists()) return;
       const data = snap.val();
       recipientUser = { uid: recipientId, ...data };
       setRecipientAvatar(data);
 
-      recipientNameElem.textContent = data.username || data.email?.split('@')[0] || "Unknown";
-      if(data.verified) recipientNameElem.innerHTML += ' <i class="fas fa-circle-check"></i>';
+      recipientNameElem.innerHTML = data.username || data.email?.split('@')[0] || "Unknown";
+      if (data.verified) recipientNameElem.innerHTML += ' <i class="fas fa-circle-check verified-icon"></i>';
+      if (data.banned) recipientNameElem.innerHTML += '<i style="color: #e53939;"class="fa-solid fa-circle-xmark"></i>';
 
       const statusRef = ref(db, `users/${recipientId}/status`);
-      onValue(statusRef, s=> recipientStatusElem.textContent = s.val()?'Online':'Offline');
+      onValue(statusRef, (s) => recipientStatusElem.textContent = s.val() ? 'Online' : 'Offline');
 
       const typingRef = ref(db, `users/${recipientId}/typing/${conversationId}`);
-      onValue(typingRef, t=> typingIndicator.style.display = t.val()?'block':'none');
+      onValue(typingRef, (t) => typingIndicator.style.display = t.val() ? 'block' : 'none');
     });
 
     const messagesRef = ref(db, `conversations/${conversationId}/messages`);
-    onValue(messagesRef, snapshot=>{
-      messagesContainer.innerHTML='';
-      if(!snapshot.exists()) messagesContainer.innerHTML='<div class="message-date">Start a conversation</div>';
-      else snapshot.forEach(c=>showMessage({id:c.key,...c.val()}));
+    onValue(messagesRef, (snapshot) => {
+      messagesContainer.innerHTML = '';
+      if (!snapshot.exists()) messagesContainer.innerHTML = '<div class="message-date">Start a conversation</div>';
+      else snapshot.forEach((c) => showMessage({ id: c.key, ...c.val() }));
     });
 
     await markMessagesAsRead(conversationId, currentUser.uid);

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a84ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <title>WebNet - Request Review</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 120px; /* space for button + navbar */
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #181818;
+      border-bottom: 1px solid #333;
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-left i {
+      cursor: pointer;
+      color: #0a84ff;
+      font-size: 1.2em;
+    }
+    #loaderOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 18, 18, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .loader {
+      border: 5px solid #333;
+      border-top: 5px solid #0a84ff;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .review-container {
+      position: relative;
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .review-message h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .review-message p {
+      font-size: 0.9em;
+      color: #999;
+      max-width: 80%;
+      margin: 0 auto 20px;
+    }
+    .review-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 90%;
+    }
+    .review-textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #2a2a2a;
+      color: #fff;
+      outline: none;
+      resize: vertical;
+      font-size: 0.9em;
+    }
+    .review-textarea::placeholder {
+      color: #888;
+    }
+    .submit-btn {
+      position: fixed;
+      bottom: 70px;
+      left: 0;
+      right: 0;
+      width: 70%;
+      padding: 14px;
+      border: 0.5px solid #006edc;
+      border-radius: 20px;
+      font-size: 1em;
+      cursor: pointer;
+      background: none;
+      color: #fff;
+      transition: background 0.3s;
+      display: block;
+      z-index: 99;
+      justify-self: center;
+    }
+    .submit-btn:hover {
+      background: #006edc;
+    }
+    .success-message {
+      font-size: 0.9em;
+      color: #25D366;
+      max-width: 80%;
+      margin: 0 auto;
+      text-align: center;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #181818;
+      border-top: 1px solid #333;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 100;
+    }
+    nav a {
+      color: #eee;
+      font-size: 1.4em;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    nav a:hover {
+      color: #0a84ff;
+    }
+    nav a.active {
+      color: #0a84ff;
+      background: #1e1e1e;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    @media (min-width: 768px) {
+      .review-container {
+        padding: 20px 20%;
+      }
+    }
+    a {
+      color: white;
+      text-decoration: none;
+    }
+    a:hover {
+      color: white;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <i id="backBtn" class="fas fa-arrow-left" onclick="window.history.back()"></i>
+      <span>Request Review</span>
+    </div>
+  </header>
+  <div class="review-container" id="reviewContainer">
+    <div id="loaderOverlay">
+      <div class="loader"></div>
+      <p style="margin-top:15px;color:#bbb;">Processing request...</p>
+    </div>
+    <div class="review-message" style="display:none;" id="reviewMessage">
+      <h2>Request a Review</h2>
+      <p>WebNet Support will review your account and get back to you within 24-48 hours. Please provide any additional details you want to include in your review (optional).</p>
+    </div>
+    <form id="reviewForm" style="display:none;">
+      <textarea id="reviewTextarea" class="review-textarea" placeholder="Add your details (optional)" rows="4"></textarea>
+    </form>
+    <div class="success-message" id="successMessage" style="display:none;">
+      <p>Successfully sent a request to review your banned account. Our team will evaluate your case within 24 to 48 hours and notify you of the outcome. Please ensure all details are accurate.</p>
+    </div>
+  </div>
+
+  <!-- Full-width Submit button -->
+  <button class="submit-btn" id="submitBtn">Submit</button>
+
+  <nav>
+    <a href="home.html"><i class="fas fa-comment"></i></a>
+    <a href="search.html"><i class="fas fa-search"></i></a>
+    <a href="notifications.html"><i class="fas fa-bell"></i></a>
+    <a href="profile.html" class="active"><i class="fas fa-user"></i></a>
+  </nav>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+    authDomain: "webnet2.firebaseapp.com",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
+    projectId: "webnet2",
+    storageBucket: "webnet2.appspot.com",
+    messagingSenderId: "323870835138",
+    appId: "1:323870835138:web:bca571d5620b766651565b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const loaderOverlay = document.getElementById("loaderOverlay");
+  const reviewMessage = document.getElementById("reviewMessage");
+  const reviewForm = document.getElementById("reviewForm");
+  const reviewTextarea = document.getElementById("reviewTextarea");
+  const successMessage = document.getElementById("successMessage");
+  const submitBtn = document.getElementById("submitBtn");
+
+  let currentUser = null;
+
+  async function checkReviewRequested() {
+    if (!currentUser) return false;
+    const reviewSnap = await get(ref(db, `users/${currentUser.uid}/reviewRequested`));
+    return reviewSnap.exists() && reviewSnap.val() === true;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "index.html";
+      return;
+    }
+    currentUser = user;
+
+    // Simulate initial load with loader
+    setTimeout(() => {
+      loaderOverlay.style.display = "none";
+      reviewMessage.style.display = "block";
+      successMessage.style.display = "none";
+      reviewForm.style.display = "block";
+      submitBtn.style.display = "block";
+    }, 1500);
+
+    const reviewRequested = await checkReviewRequested();
+    if (reviewRequested) {
+      reviewForm.style.display = "none";
+      submitBtn.style.display = "none";
+      successMessage.style.display = "block";
+    }
+  });
+
+  submitBtn.addEventListener("click", async () => {
+    const reviewDetails = reviewTextarea.value.trim();
+    loaderOverlay.style.display = "flex";
+    try {
+      await set(ref(db, `users/${currentUser.uid}/reviewRequested`), true);
+      if (reviewDetails) {
+        await set(ref(db, `users/${currentUser.uid}/reviewDetails`), reviewDetails);
+      }
+      reviewForm.style.display = "none";
+      submitBtn.style.display = "none";
+      successMessage.style.display = "block";
+    } catch (error) {
+      console.error("Error submitting review request:", error);
+      alert("Failed to submit request. Please try again.");
+    } finally {
+      loaderOverlay.style.display = "none";
+    }
+  });
+
+  window.visualViewport.addEventListener('resize', () => {
+    document.body.style.height = `${window.visualViewport.height}px`;
+  });
+</script>
+</body>
+</html>

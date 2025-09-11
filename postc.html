@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a84ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <title>WebNet - Posts</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #333;
+      background: #181818;
+      z-index: 100;
+    }
+    main {
+      flex: 1;
+      padding: 20px 12px 70px;
+    }
+    .loader-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .loader {
+      border: 6px solid #333;
+      border-top: 6px solid #0a84ff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #postList {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .post-card {
+      background: #181818;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      transition: transform 0.2s, border 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .post-card:hover {
+      transform: translateY(-3px);
+      border: 1px solid #0a84ff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.8);
+    }
+    .post-card:active {
+      transform: scale(0.97);
+    }
+    .post-card img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px 12px 0 0;
+    }
+    .view-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .view-modal-content {
+      max-width: 90%;
+      max-height: 90vh;
+      background: #181818;
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.8);
+      animation: modalPop 0.3s ease;
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .view-modal-content img {
+      max-width: 100%;
+      max-height: 60vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .view-footer {
+      width: 100%;
+      padding: 10px;
+      border-top: 1px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .view-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #eee;
+      font-weight: bold;
+      font-size: 1em;
+    }
+    .view-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #3247e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      overflow: hidden;
+    }
+    .view-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .view-username {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #0a84ff;
+    }
+    .view-username:hover { text-decoration: underline; }
+    .view-caption {
+      font-size: 0.9em;
+      color: #ddd;
+    }
+    .view-time {
+      font-size: 0.8em;
+      color: #777;
+    }
+    .view-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 1em;
+      transition: color 0.2s;
+    }
+    .action-btn:hover { color: #0a84ff; }
+    .like-btn.liked { color: #e0245e; }
+    .comment-btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #0a84ff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9em;
+      min-width: 100px;
+    }
+    .comment-btn:hover { background: #006edc; }
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 36px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      z-index: 3000;
+    }
+    .nav-arrow.left { left: 15px; }
+    .nav-arrow.right { right: 15px; }
+    .modal-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    .heart-anim {
+      position: absolute;
+      font-size: 60px;
+      color: #e0245e;
+      opacity: 0.8;
+      animation: fadeUp 1s forwards;
+      pointer-events: none;
+    }
+    @keyframes fadeUp {
+      0% { transform: scale(0.5); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 0; top: -50px; }
+    }
+    .verified-icon {
+      color: #0a84ff;
+      font-size: 0.9em;
+    }
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      right: 15px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #0a84ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      color: #fff;
+      cursor: pointer;
+      z-index: 1500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: background 0.3s, transform 0.1s;
+    }
+    .fab:hover { background: #006edc; }
+    .fab:active { transform: scale(0.95); }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #181818;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      border-top: 1px solid #333;
+      z-index: 100;
+    }
+    nav a {
+      color: #eee;
+      font-size: 1.4em;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    nav a:hover { color: #0a84ff; }
+    nav a.active { color: #0a84ff; background: #1e1e1e; }
+    nav a:active { transform: scale(0.95); }
+    @media (min-width: 768px) {
+      main { padding: 20px 20%; }
+      .view-modal-content { max-width: 80%; }
+      .view-modal-content img { max-height: 70vh; }
+    }
+  </style>
+</head>
+<body>
+  <header>WebNet Posts</header>
+  <div id="loaderWrap" class="loader-wrap">
+    <div class="loader"></div>
+    <p>Loading posts...</p>
+  </div>
+  <main id="content" style="display:none;">
+    <div id="postList"></div>
+  </main>
+  <a href="new-post.html" class="fab" aria-label="Create new post">
+    <i class="fas fa-plus"></i>
+  </a>
+  <div class="view-modal" id="viewModal">
+    <span class="close-btn" id="closeView">&times;</span>
+    <span class="nav-arrow left" id="prevArrow">&#10094;</span>
+    <span class="nav-arrow right" id="nextArrow">&#10095;</span>
+    <div class="view-modal-content">
+      <div class="modal-spinner" id="modalSpinner"></div>
+      <img id="modalImg" src="" alt="Post image">
+      <div class="view-footer">
+        <a href="#" class="view-user">
+          <div class="view-avatar" id="modalAvatar"></div>
+          <span class="view-username" id="modalUsername"></span>
+        </a>
+        <p class="view-caption" id="modalCaption"></p>
+        <p class="view-time" id="modalTime"></p>
+        <div class="view-actions">
+          <button class="action-btn like-btn" id="modalLikeBtn">
+            <i class="fas fa-heart"></i> <span id="modalLikeCount">0</span>
+          </button>
+          <button class="comment-btn" id="commentBtn">Comment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <a href="home.html"><i class="fas fa-comment"></i></a>
+    <a href="search.html"><i class="fas fa-search"></i></a>
+    <a href="notifications.html"><i class="fas fa-bell"></i><span class="notification-badge" id="notifBadge" style="display:none;">0</span></a>
+    <a href="profile.html"><i class="fas fa-user"></i></a>
+  </nav>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getDatabase, ref, onValue, get, set, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
+    authDomain: "webnet2.firebaseapp.com",
+    databaseURL: "https://webnet2-default-rtdb.firebaseio.com",
+    projectId: "webnet2",
+    storageBucket: "webnet2.appspot.com",
+    messagingSenderId: "323870835138",
+    appId: "1:323870835138:web:bca571d5620b766651565b"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  const loaderWrap = document.getElementById("loaderWrap");
+  const content = document.getElementById("content");
+  const postList = document.getElementById("postList");
+  const viewModal = document.getElementById("viewModal");
+  const closeView = document.getElementById("closeView");
+  const modalImg = document.getElementById("modalImg");
+  const modalAvatar = document.getElementById("modalAvatar");
+  const modalUsername = document.getElementById("modalUsername");
+  const modalCaption = document.getElementById("modalCaption");
+  const modalTime = document.getElementById("modalTime");
+  const modalLikeBtn = document.getElementById("modalLikeBtn");
+  const modalLikeCount = document.getElementById("modalLikeCount");
+  const commentBtn = document.getElementById("commentBtn");
+  const prevArrow = document.getElementById("prevArrow");
+  const nextArrow = document.getElementById("nextArrow");
+  const modalSpinner = document.getElementById("modalSpinner");
+
+  let currentUser = null;
+  let posts = [];
+  let currentIndex = 0;
+  let userVerificationCache = {};
+
+  async function isUserVerified(uid) {
+    if (userVerificationCache[uid] !== undefined) return userVerificationCache[uid];
+    try {
+      const userSnap = await get(ref(db, `users/${uid}`));
+      if (userSnap.exists()) {
+        const userData = userSnap.val();
+        const verified = userData.verified || false;
+        userVerificationCache[uid] = verified;
+        return verified;
+      }
+    } catch (error) {
+      console.error("Error checking verification status:", error);
+    }
+    return false;
+  }
+
+  async function getUserPFP(uid) {
+    try {
+      const snap = await get(ref(db, `users/${uid}/pfp`));
+      if (snap.exists()) return snap.val();
+    } catch (err) {
+      console.error("Error fetching user pfp:", err);
+    }
+    return null;
+  }
+
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  }
+
+  async function loadPosts() {
+    onValue(ref(db, "posts"), (snapshot) => {
+      postList.innerHTML = "";
+      posts = [];
+      snapshot.forEach((child) => {
+        const data = child.val();
+        const id = child.key;
+        posts.push({ id, ...data });
+      });
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+      if (posts.length === 0) {
+        content.innerHTML = `
+          <div class="empty-state" style="text-align: center; padding: 20px; color: #888;">
+            <i class="fas fa-camera" style="font-size: 3.5em; margin-bottom: 15px; color: #444;"></i>
+            <h2>No Posts Yet</h2>
+            <p>Be the first to share a post!</p>
+          </div>
+        `;
+        loaderWrap.style.display = "none";
+        content.style.display = "block";
+        return;
+      }
+      posts.forEach((post) => {
+        const { image = "", caption = "", likes = {}, user = {}, userId, timestamp = Date.now() } = post;
+        const card = document.createElement("div");
+        card.className = "post-card";
+        card.innerHTML = `<img src="${image}" alt="Post image" />`;
+        card.querySelector("img").addEventListener("click", () => {
+          currentIndex = posts.findIndex(p => p.id === post.id);
+          showModal(currentIndex);
+        });
+        postList.appendChild(card);
+      });
+      loaderWrap.style.display = "none";
+      content.style.display = "block";
+    }, (error) => {
+      console.error("Error loading posts:", error);
+      loaderWrap.style.display = "none";
+      content.innerHTML = `
+        <div class="empty-state" style="text-align: center; padding: 20px; color: #888;">
+          <i class="fas fa-exclamation-triangle" style="font-size: 3.5em; margin-bottom: 15px; color: #444;"></i>
+          <h2>Error Loading Posts</h2>
+          <p>Please try again later.</p>
+        </div>
+      `;
+      content.style.display = "block";
+    });
+  }
+
+  async function showModal(index) {
+    if (posts.length === 0) return;
+    if (index < 0) index = posts.length - 1;
+    if (index >= posts.length) index = 0;
+
+    const { id, image, caption, user = {}, userId, likes = {}, timestamp } = posts[index];
+    const liked = currentUser && likes[currentUser.uid];
+    const likeCount = Object.keys(likes).length;
+
+    modalSpinner.style.display = "block";
+    modalImg.style.opacity = "0";
+    modalAvatar.innerHTML = "";
+    modalUsername.innerHTML = "";
+
+    const tempImg = new Image();
+    tempImg.onload = async () => {
+      modalImg.src = image;
+      modalImg.style.opacity = "1";
+      modalSpinner.style.display = "none";
+      modalCaption.textContent = caption || "";
+      modalTime.textContent = formatTime(timestamp);
+      modalLikeCount.textContent = likeCount;
+      modalLikeBtn.className = `action-btn like-btn ${liked ? "liked" : ""}`;
+      modalLikeBtn.dataset.id = id;
+
+      const username = user.name || "Guest";
+      const pfpUrl = await getUserPFP(userId || "guest");
+      if (pfpUrl) {
+        const img = document.createElement("img");
+        img.src = pfpUrl;
+        modalAvatar.appendChild(img);
+      } else {
+        modalAvatar.textContent = username.charAt(0).toUpperCase() || "G";
+      }
+      modalUsername.textContent = username;
+      modalUsername.href = `profile.html?uid=${userId || "guest"}`;
+      const verified = await isUserVerified(userId || "guest");
+      if (verified) {
+        const checkIcon = document.createElement("i");
+        checkIcon.className = "fa-solid fa-circle-check verified-icon";
+        modalUsername.appendChild(checkIcon);
+      }
+
+      commentBtn.onclick = () => window.location.href = `comment.html?postId=${id}`;
+      currentIndex = index;
+      viewModal.style.display = "flex";
+    };
+    tempImg.onerror = () => {
+      modalSpinner.style.display = "none";
+      modalCaption.textContent = "Failed to load image";
+      viewModal.style.display = "flex";
+    };
+    tempImg.src = image;
+  }
+
+  modalLikeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!currentUser) return;
+    const postId = modalLikeBtn.dataset.id;
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const liked = modalLikeBtn.classList.contains("liked");
+    if (liked) {
+      remove(postRef);
+    } else {
+      set(postRef, true);
+      const heart = document.createElement("i");
+      heart.className = "fas fa-heart heart-anim";
+      heart.style.left = `${modalImg.offsetWidth / 2}px`;
+      heart.style.top = `${modalImg.offsetHeight / 2}px`;
+      modalImg.parentElement.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+    }
+  });
+
+  prevArrow.addEventListener("click", () => showModal(currentIndex - 1));
+  nextArrow.addEventListener("click", () => showModal(currentIndex + 1));
+  closeView.addEventListener("click", () => viewModal.style.display = "none");
+  viewModal.addEventListener("click", (e) => {
+    if (e.target === viewModal) closeView.click();
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    loadPosts();
+  });
+
+  window.visualViewport.addEventListener('resize', () => {
+    document.body.style.height = `${window.visualViewport.height}px`;
+  });
+</script>
+</body>
+</html>

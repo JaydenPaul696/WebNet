@@ -113,9 +113,14 @@
     nav a.active { color: #0a84ff; background: #1e1e1e; }
     nav a:active { transform: scale(0.95); }
     .verified-badge { color: #0a84ff; font-size: 0.85em; }
+    .banned-icon { color: #e53935; font-size: 0.85em; } /* Explicitly set to red */
     @media (min-width: 768px) {
       .search-container { padding: 15px 20%; }
       .user-item { padding: 15px 20%; }
+    }
+    .fa-circle-xmark{
+        color: #e53939;
+        font-size: 0.85em;
     }
   </style>
 </head>
@@ -151,7 +156,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA6lvIUQ36aLbjomZnUqsIkkDgv017tcqI",
@@ -177,6 +182,30 @@
 
   window.goBack = () => window.history.back();
 
+  async function appendBannedOrVerifiedBadge(element, uid) {
+    try {
+      const userRef = ref(db, `users/${uid}`);
+      const snap = await get(userRef);
+      if (snap.exists()) {
+        const data = snap.val();
+        if (data.verified) {
+          const checkIcon = document.createElement('i');
+          checkIcon.className = 'fas fa-circle-check verified-badge';
+          checkIcon.title = 'Verified User';
+          element.appendChild(checkIcon);
+        }
+        if (data.banned) {
+          const banIcon = document.createElement('i');
+          banIcon.className = 'fa-solid fa-circle-xmark';
+          banIcon.title = 'Banned User';
+          element.appendChild(banIcon);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking user status:", error);
+    }
+  }
+
   function createUserItem(userData, userId) {
     if (userId === currentUser?.uid) return null;
     const userItem = document.createElement('li');
@@ -185,22 +214,42 @@
     const userName = userData.realName || userData.username || userData.email?.split('@')[0] || 'Unknown';
     const userInitial = userName.charAt(0).toUpperCase();
 
-    userItem.innerHTML = `
-      <div class="user-avatar">
-        ${userData.pfp
-          ? `<img src="${userData.pfp}" alt="${userName}">`
-          : userInitial}
-      </div>
-      <div class="user-info">
-        <div class="user-name">
-          ${userName}
-          ${userData.verified ? '<i class="fas fa-circle-check verified-badge"></i>' : ''}
-          <div class="user-status ${userData.status ? 'online' : ''}"></div>
-        </div>
-        <div class="user-username">@${userData.username || 'unknown'}</div>
-      </div>
-      <button class="chat-btn" title="Start Chat"><i class="fas fa-comment"></i></button>
-    `;
+    const userDiv = document.createElement('div');
+    userDiv.className = 'user-avatar';
+    if (userData.pfp) {
+      const img = document.createElement('img');
+      img.src = userData.pfp;
+      img.alt = userName;
+      userDiv.appendChild(img);
+    } else {
+      userDiv.textContent = userInitial;
+    }
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'user-info';
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'user-name';
+    nameDiv.textContent = userName;
+    appendBannedOrVerifiedBadge(nameDiv, userId);
+    const statusDiv = document.createElement('div');
+    statusDiv.className = `user-status ${userData.status ? 'online' : ''}`;
+
+    const usernameDiv = document.createElement('div');
+    usernameDiv.className = 'user-username';
+    usernameDiv.textContent = `@${userData.username || 'unknown'}`;
+
+    infoDiv.appendChild(nameDiv);
+    nameDiv.appendChild(statusDiv);
+    infoDiv.appendChild(usernameDiv);
+
+    const chatBtn = document.createElement('button');
+    chatBtn.className = 'chat-btn';
+    chatBtn.title = 'Start Chat';
+    chatBtn.innerHTML = '<i class="fas fa-comment"></i>';
+
+    userItem.appendChild(userDiv);
+    userItem.appendChild(infoDiv);
+    userItem.appendChild(chatBtn);
 
     userItem.addEventListener('click', (e) => {
       if (!e.target.closest('.chat-btn')) {
@@ -266,9 +315,23 @@
     });
   }
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "index.html";
+      return;
+    }
+
     currentUser = user;
+    try {
+      const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+      if (userSnap.exists() && userSnap.val().banned) {
+        window.location.href = 'banned.html';
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking ban status:", error);
+    }
+
     loadUsersRealtime();
   });
 

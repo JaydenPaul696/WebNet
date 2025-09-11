@@ -11,42 +11,249 @@
   <title>Messages - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    body {margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:#121212;color:#eee;display:flex;flex-direction:column;height:100vh;}
-    header{padding:15px;font-size:20px;font-weight:bold;text-align:center;border-bottom:1px solid #333;background:#181818;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;}
-    .header-title{flex:1;text-align:center;}
-    .header-actions{display:flex;gap:15px;}
-    .header-actions button{background:none;border:none;color:#eee;font-size:18px;cursor:pointer;}
-    main{flex:1;overflow-y:auto;padding:0;position:relative;}
-    .conversation-list{list-style:none;padding:0;margin:0;}
-    .conversation{display:flex;align-items:center;padding:12px 15px;border-bottom:1px solid #252525;cursor:pointer;transition:background-color 0.2s;}
-    .conversation:hover{background-color:#1e1e1e;}
-    .conversation-avatar{width:50px;height:50px;border-radius:50%;background:#3247e7;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:15px;flex-shrink:0;overflow:hidden;}
-    .conversation-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-    .conversation-info{flex:1;min-width:0;}
-    .conversation-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
-    .conversation-name{font-weight:bold;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}
-    .conversation-time{font-size:12px;color:#888;flex-shrink:0;}
-    .conversation-bottom{display:flex;justify-content:space-between;align-items:center;}
-    .conversation-preview{font-size:14px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;}
-    .conversation-unread{background:#0a84ff;color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;}
-    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70vh;text-align:center;padding:20px;color:#888;}
-    .empty-state i{font-size:80px;margin-bottom:20px;color:#444;}
-    .empty-state h2{font-size:22px;margin:0 0 10px 0;color:#eee;}
-    .empty-state p{font-size:16px;line-height:1.5;max-width:300px;}
-    nav{display:flex;justify-content:space-around;background:#121212;padding:12px 0;position:fixed;bottom:0;width:100%;border-top:1px solid #333;z-index:100;}
-    nav a{color:#eee;font-size:20px;text-decoration:none;padding:5px 15px;border-radius:8px;transition:background-color 0.2s;}
-    nav a:hover, nav a.active{color:#0a84ff;background:#1e1e1e;}
-    .fab{position:fixed;bottom:70px;right:20px;background:#0a84ff;color:white;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(10,132,255,0.3);cursor:pointer;z-index:99;text-decoration:none;transition:all 0.3s;}
-    .fab:hover{background:#0066cc;transform:translateY(-2px);box-shadow:0 6px 16px rgba(10,132,255,0.4);}
-    .loader-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:#121212;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:50;}
-    .loader{border:6px solid #333;border-top:6px solid #0a84ff;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite;}
-    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-    .verified-icon{color:#0a84ff;font-size:0.8em;}
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #333;
+      background: #181818;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      flex: 1;
+      text-align: center;
+    }
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .header-actions button {
+      background: none;
+      border: none;
+      color: #eee;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      position: relative;
+    }
+    .conversation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .conversation {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      border-bottom: 1px solid #252525;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .conversation:hover {
+      background-color: #1e1e1e;
+    }
+    .conversation-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #3247e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-right: 15px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .conversation-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .conversation-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .conversation-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .conversation-name {
+      font-weight: bold;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .conversation-time {
+      font-size: 12px;
+      color: #888;
+      flex-shrink: 0;
+    }
+    .conversation-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .conversation-preview {
+      font-size: 14px;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+    .conversation-unread {
+      background: #0a84ff;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 70vh;
+      text-align: center;
+      padding: 20px;
+      color: #888;
+    }
+    .empty-state i {
+      font-size: 80px;
+      margin-bottom: 20px;
+      color: #444;
+    }
+    .empty-state h2 {
+      font-size: 22px;
+      margin: 0 0 10px 0;
+      color: #eee;
+    }
+    .empty-state p {
+      font-size: 16px;
+      line-height: 1.5;
+      max-width: 300px;
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #121212;
+      padding: 12px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      border-top: 1px solid #333;
+      z-index: 100;
+    }
+    nav a {
+      color: #eee;
+      font-size: 20px;
+      text-decoration: none;
+      padding: 5px 15px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    nav a:hover, nav a.active {
+      color: #0a84ff;
+      background: #1e1e1e;
+    }
+    .fab {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      background: #0a84ff;
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
+      cursor: pointer;
+      z-index: 99;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .fab:hover {
+      background: #0066cc;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(10, 132, 255, 0.4);
+    }
+    .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(18, 18, 18, 0.9); /* Semi-transparent to show header/nav */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .loader {
+      border: 6px solid #333;
+      border-top: 6px solid #0a84ff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .verified-icon {
+      color: #0a84ff;
+      font-size: 0.8em;
+    }
+    .banned-icon {
+      color: #e53935;
+      font-size: 0.8em;
+    }
+    .fa-circle-xmark{
+        color: #e53939;
+        font-size: 0.8em;
+    }
   </style>
 </head>
 <body>
 <header>
-  <div class="header-title">Messages</div>
+  <div class="header-title">Chats</div>
   <div class="header-actions"><button><i class="fas fa-ellipsis-vertical"></i></button></div>
 </header>
 
@@ -87,16 +294,27 @@ const db = getDatabase(app);
 const conversationsList = document.getElementById('conversationsList');
 const loaderOverlay = document.getElementById('loaderOverlay');
 
-async function appendVerifiedBadge(element, uid) {
+async function appendBannedOrVerifiedBadge(element, uid) {
   try {
-    const snap = await get(ref(db, `users/${uid}/verified`));
-    if (snap.exists() && snap.val()) {
-      const checkIcon = document.createElement('i');
-      checkIcon.className = 'fa-solid fa-circle-check verified-icon';
-      element.appendChild(checkIcon);
+    const userRef = ref(db, `users/${uid}`);
+    const snap = await get(userRef);
+    if (snap.exists()) {
+      const data = snap.val();
+      if (data.verified) {
+        const checkIcon = document.createElement('i');
+        checkIcon.className = 'fas fa-circle-check verified-icon';
+        checkIcon.title = 'Verified User';
+        element.appendChild(checkIcon);
+      }
+      if (data.banned) {
+        const banIcon = document.createElement('i');
+        banIcon.className = 'fa-solid fa-circle-xmark';
+        banIcon.title = 'Banned User';
+        element.appendChild(banIcon);
+      }
     }
   } catch (error) {
-    console.error("Error checking verified status:", error);
+    console.error("Error checking user status:", error);
   }
 }
 
@@ -162,7 +380,6 @@ async function getUserDisplayName(uid) {
   return 'Unknown';
 }
 
-// NEW: Get user profile picture
 async function getUserPFP(uid) {
   try {
     const snap = await get(ref(db, `users/${uid}/pfp`));
@@ -201,7 +418,7 @@ async function createConversationElement(conversationId, otherUserId, currentUse
   const nameDiv = document.createElement('div');
   nameDiv.className = 'conversation-name';
   nameDiv.textContent = displayName;
-  await appendVerifiedBadge(nameDiv, otherUserId);
+  await appendBannedOrVerifiedBadge(nameDiv, otherUserId);
 
   const { lastMessage, lastTimestamp, unreadCount } = await getLastMessage(conversationId, currentUserId);
   
@@ -318,9 +535,24 @@ async function loadConversations(userId) {
   });
 }
 
-onAuthStateChanged(auth, user => {
-  if (!user) window.location.href = 'index.html';
-  else loadConversations(user.uid);
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  const uid = user.uid;
+  try {
+    const userSnap = await get(ref(db, `users/${uid}`));
+    if (userSnap.exists() && userSnap.val().banned) {
+      window.location.href = 'banned.html';
+      return;
+    }
+  } catch (error) {
+    console.error("Error checking ban status:", error);
+  }
+
+  loadConversations(uid);
 });
 </script>
 
@@ -333,6 +565,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-
 </body>
 </html>
