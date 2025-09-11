@@ -10,6 +10,9 @@
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <title>Messages - WebNet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!--Circle: https://res.cloudinary.com/dgvnfptdq/image/upload/v1757627944/remove_the_white_par_cdtkcp.png
+
+Square: https://res.cloudinary.com/dgvnfptdq/image/upload/v1757627992/create_a_circular_lo_qnl18v.png -->
   <style>
     body {
       margin: 0;
@@ -48,6 +51,15 @@
       color: #eee;
       font-size: 18px;
       cursor: pointer;
+    }
+    #installButton {
+      display: none; /* Hidden by default */
+    }
+    #installButton.visible {
+      display: block;
+    }
+    #installButton i {
+      color: #0a84ff; /* Blue accent for install icon */
     }
     main {
       flex: 1;
@@ -254,7 +266,12 @@
 <body>
 <header>
   <div class="header-title">Chats</div>
-  <div class="header-actions"><button><i class="fas fa-ellipsis-vertical"></i></button></div>
+  <div class="header-actions">
+    <button id="installButton" title="Install App">
+      <i class="fas fa-download"></i>
+    </button>
+    <button><i class="fas fa-ellipsis-vertical"></i></button>
+  </div>
 </header>
 
 <main id="conversationsList">
@@ -564,6 +581,41 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error("SW registration failed:", err));
   });
 }
+
+// PWA Install Button Feature
+let deferredPrompt;
+const installButton = document.getElementById('installButton');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent the default browser prompt
+  e.preventDefault();
+  // Store the event for later use
+  deferredPrompt = e;
+  // Show the install button if the app is not already installed
+  if (!window.matchMedia('(display-mode: standalone)').matches) {
+    installButton.classList.add('visible');
+  }
+});
+
+installButton.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for user choice
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    // Hide the button after prompt
+    installButton.classList.remove('visible');
+    deferredPrompt = null;
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  // Hide the button after successful install
+  installButton.classList.remove('visible');
+  deferredPrompt = null;
+});
 </script>
 </body>
 </html>
