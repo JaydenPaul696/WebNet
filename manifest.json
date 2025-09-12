@@ -9,18 +9,18 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/dgvnfptdq/image/upload/v1757627944/remove_the_white_par_cdtkcp.png",
+      "src": "https://res.cloudinary.com/dzbdhiezs/image/upload/v1757636655/Untitled_5_fvbpdw.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://res.cloudinary.com/dgvnfptdq/image/upload/v1757627992/create_a_circular_lo_qnl18v.png",
+      "src": "https://res.cloudinary.com/dzbdhiezs/image/upload/v1757636655/Untitled_4_ednpph.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["social", "entertainment"],
+  "categories": ["social", "entertainment", "messaging"],
   "lang": "en"
 }
