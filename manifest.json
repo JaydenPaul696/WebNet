@@ -21,6 +21,7 @@
       "purpose": "any maskable"
     }
   ],
+  "id": "com.vortex.webnet",
   "categories": ["social", "entertainment", "messaging"],
   "lang": "en"
 }
